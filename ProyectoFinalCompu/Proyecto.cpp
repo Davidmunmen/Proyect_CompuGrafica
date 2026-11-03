@@ -30,7 +30,7 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 
 // Window dimensions
-const GLuint WIDTH = 800, HEIGHT = 600;
+const GLuint WIDTH = 1000, HEIGHT =800;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 // Camera (un poco más atrás y alto para ver el arco)
@@ -54,6 +54,9 @@ glm::vec3 pointLightPositions[] = {
 // Deltatime
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+// Variables de animación jerárquica para las extremidades del personaje
+GLfloat rotacionBrazos = 0.0f;
+GLfloat rotacionPiernas = 0.0f;
 
 int main()
 {
@@ -92,11 +95,20 @@ int main()
     Shader lightingShader("Shader/lighting.vs", "Shader/lighting.frag");
     Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
 
-    // Modelos: SOLO piso y arco
+    // Modelos:  piso y arco
     Model Piso((char*)"Models/Arco/piso.obj");
     Model base((char*)"Models/Arco/base.obj");
     Model PisoA((char*)"Models/Arco/pisoA.obj");
     Model velas((char*)"Models/velas/velas.obj");
+	Model ofrenda((char*)"Models/ofrenda/ofrenda.obj");
+	Model cabeza((char*)"Models/personaje/cabeza/cabeza.obj");
+	Model biceps((char*)"Models/personaje/bicep/bicep.obj");
+	Model cuerpo((char*)"Models/personaje/cuerpo/cuerpo.obj");
+	Model manoDer((char*)"Models/personaje/manoDer/manoDer.obj");
+	Model manoIzq((char*)"Models/personaje/manoIzq/manoIzq.obj");
+	Model mascara((char*)"Models/personaje/mascara/mascara.obj");
+	Model musDer((char*)"Models/personaje/musDer/musDer.obj");
+	Model piederecho((char*)"Models/personaje/piederecho/pieDer.obj");
 
 
     // Set texture units
@@ -257,6 +269,73 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         velas.Draw(lightingShader);
 
+
+        //Dibujo de la ofrenda //
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -4.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.2f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        ofrenda.Draw(lightingShader);
+
+
+        //Dibujo del la danza de //
+        glm::mat4 matrixModelCuerpo = glm::mat4(1.0f);
+        matrixModelCuerpo = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 0.0f, -2.0f)); // Posición general en el mundo
+
+        // Dibujar Cuerpo
+        model = matrixModelCuerpo;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+
+        //// Cabeza (Hereda del cuerpo)
+        //model = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 1.2f, 0.0f)); // Ajuste relativo sobre el cuerpo
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //cabeza.Draw(lightingShader);
+
+        //// Máscara (Hereda de la cabeza o directamente del cuerpo en la zona frontal)
+        //model = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 1.2f, 0.2f));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //mascara.Draw(lightingShader);
+
+        //// Bicep Derecho (Hereda del cuerpo y añade rotación de articulación)
+        //glm::mat4 matrixModelBicepDer = glm::translate(matrixModelCuerpo, glm::vec3(-0.5f, 0.8f, 0.0f));
+        //matrixModelBicepDer = glm::rotate(matrixModelBicepDer, glm::radians(rotacionBrazos), glm::vec3(1.0f, 0.0f, 0.0f));
+        //model = matrixModelBicepDer;
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //biceps.Draw(lightingShader);
+
+        //// Mano Derecha (Hereda del Bicep Derecho - Jerarquía secundaria)
+        //model = glm::translate(matrixModelBicepDer, glm::vec3(0.0f, -0.6f, 0.0f));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //manoDer.Draw(lightingShader);
+
+        //// Bicep Izquierdo (Hereda del cuerpo)
+        //glm::mat4 matrixModelBicepIzq = glm::translate(matrixModelCuerpo, glm::vec3(0.5f, 0.8f, 0.0f));
+        //matrixModelBicepIzq = glm::rotate(matrixModelBicepIzq, glm::radians(-rotacionBrazos), glm::vec3(1.0f, 0.0f, 0.0f));
+        //model = matrixModelBicepIzq;
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //biceps.Draw(lightingShader);
+
+        //// Mano Izquierda (Hereda del Bicep Izquierdo)
+        //model = glm::translate(matrixModelBicepIzq, glm::vec3(0.0f, -0.6f, 0.0f));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //manoIzq.Draw(lightingShader);
+
+        //// Muslo Derecho / Pierna (Hereda del cuerpo)
+        //glm::mat4 matrixModelMusDer = glm::translate(matrixModelCuerpo, glm::vec3(-0.2f, -0.2f, 0.0f));
+        //matrixModelMusDer = glm::rotate(matrixModelMusDer, glm::radians(rotacionPiernas), glm::vec3(1.0f, 0.0f, 0.0f));
+        //model = matrixModelMusDer;
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //musDer.Draw(lightingShader);
+
+        //// Pie Derecho (Hereda del muslo derecho)
+        //model = glm::translate(matrixModelMusDer, glm::vec3(0.0f, -0.8f, 0.0f));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //piederecho.Draw(lightingShader);
+
+        
+        
         // ===================== LÁMPARA (opcional) =====================
         // Si NO quieres ver el cubito de la luz, comenta este bloque completo.
         lampShader.Use();
@@ -271,6 +350,9 @@ int main()
         model = glm::translate(model, pointLightPositions[0]);
         model = glm::scale(model, glm::vec3(0.2f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+
+
         // (Si quitaste el VAO de vértices, comenta también el dibujo del cubo)
         // glBindVertexArray(VAO);
         // glDrawArrays(GL_TRIANGLES, 0, 36);
