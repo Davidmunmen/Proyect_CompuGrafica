@@ -279,61 +279,77 @@ int main()
         ofrenda.Draw(lightingShader);
 
 
-        //Dibujo del la danza de //
+        ////Dibujo del la danza de //
+
+// ===================== PERSONAJE (ANIMACIÓN JERÁRQUICA) =====================
         glm::mat4 matrixModelCuerpo = glm::mat4(1.0f);
-        matrixModelCuerpo = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 0.0f, -2.0f)); // Posición general en el mundo
+        matrixModelCuerpo = glm::translate(matrixModelCuerpo, glm::vec3(-2.0f, 1.0f, 2.0f));
+        matrixModelCuerpo = glm::scale(matrixModelCuerpo, glm::vec3(0.35f, 0.35f, 0.35f));
 
         // Dibujar Cuerpo
         model = matrixModelCuerpo;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         cuerpo.Draw(lightingShader);
 
-        //// Cabeza (Hereda del cuerpo)
-        //model = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 1.2f, 0.0f)); // Ajuste relativo sobre el cuerpo
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //cabeza.Draw(lightingShader);
+        // Cabeza
+        model = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 1.0f, 0.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cabeza.Draw(lightingShader);
 
-        //// Máscara (Hereda de la cabeza o directamente del cuerpo en la zona frontal)
-        //model = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 1.2f, 0.2f));
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //mascara.Draw(lightingShader);
+        // Máscara 
+        model = glm::translate(matrixModelCuerpo, glm::vec3(0.0f, 2.5f, 0.4f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        mascara.Draw(lightingShader);
 
-        //// Bicep Derecho (Hereda del cuerpo y añade rotación de articulación)
-        //glm::mat4 matrixModelBicepDer = glm::translate(matrixModelCuerpo, glm::vec3(-0.5f, 0.8f, 0.0f));
-        //matrixModelBicepDer = glm::rotate(matrixModelBicepDer, glm::radians(rotacionBrazos), glm::vec3(1.0f, 0.0f, 0.0f));
-        //model = matrixModelBicepDer;
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //biceps.Draw(lightingShader);
+        // Bicep Derecho (Con escala reducida)
+        glm::mat4 matrixModelBicepDer = glm::translate(matrixModelCuerpo, glm::vec3(-0.5f, 0.8f, 0.0f));
+        matrixModelBicepDer = glm::rotate(matrixModelBicepDer, glm::radians(rotacionBrazos), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::scale(matrixModelBicepDer, glm::vec3(0.7f, 0.7f, 0.7f)); // Escala reducida
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
 
-        //// Mano Derecha (Hereda del Bicep Derecho - Jerarquía secundaria)
-        //model = glm::translate(matrixModelBicepDer, glm::vec3(0.0f, -0.6f, 0.0f));
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //manoDer.Draw(lightingShader);
+        // Mano Derecha (Hereda del bicep derecho escalado)
+        model = glm::translate(matrixModelBicepDer, glm::vec3(0.0f, -0.6f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f)); // Escala reducida
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoDer.Draw(lightingShader);
 
-        //// Bicep Izquierdo (Hereda del cuerpo)
-        //glm::mat4 matrixModelBicepIzq = glm::translate(matrixModelCuerpo, glm::vec3(0.5f, 0.8f, 0.0f));
-        //matrixModelBicepIzq = glm::rotate(matrixModelBicepIzq, glm::radians(-rotacionBrazos), glm::vec3(1.0f, 0.0f, 0.0f));
-        //model = matrixModelBicepIzq;
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //biceps.Draw(lightingShader);
+        // Bicep Izquierdo (Con escala reducida)
+        glm::mat4 matrixModelBicepIzq = glm::translate(matrixModelCuerpo, glm::vec3(0.5f, 0.8f, 0.0f));
+        matrixModelBicepIzq = glm::rotate(matrixModelBicepIzq, glm::radians(-rotacionBrazos), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::scale(matrixModelBicepIzq, glm::vec3(0.7f, 0.7f, 0.7f)); // Escala reducida
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
 
-        //// Mano Izquierda (Hereda del Bicep Izquierdo)
-        //model = glm::translate(matrixModelBicepIzq, glm::vec3(0.0f, -0.6f, 0.0f));
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //manoIzq.Draw(lightingShader);
+        // Mano Izquierda (Hereda del bicep izquierdo escalado)
+        model = glm::translate(matrixModelBicepIzq, glm::vec3(0.0f, -0.6f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f)); // Escala reducida
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
 
-        //// Muslo Derecho / Pierna (Hereda del cuerpo)
-        //glm::mat4 matrixModelMusDer = glm::translate(matrixModelCuerpo, glm::vec3(-0.2f, -0.2f, 0.0f));
-        //matrixModelMusDer = glm::rotate(matrixModelMusDer, glm::radians(rotacionPiernas), glm::vec3(1.0f, 0.0f, 0.0f));
-        //model = matrixModelMusDer;
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //musDer.Draw(lightingShader);
+        // ===================== PIERNA DERECHA =====================
+        glm::mat4 matrixModelMusDer = glm::translate(matrixModelCuerpo, glm::vec3(-0.2f, -0.2f - 1.0f, 0.0f)); // Desplazada 1 unidad hacia abajo en Y
+        matrixModelMusDer = glm::rotate(matrixModelMusDer, glm::radians(rotacionPiernas), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = matrixModelMusDer;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
 
-        //// Pie Derecho (Hereda del muslo derecho)
-        //model = glm::translate(matrixModelMusDer, glm::vec3(0.0f, -0.8f, 0.0f));
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        //piederecho.Draw(lightingShader);
+        // Pie Derecho 
+        model = glm::translate(matrixModelMusDer, glm::vec3(0.0f, -0.8f, 0.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        piederecho.Draw(lightingShader);
 
+        // ===================== PIERNA IZQUIERDA  =====================
+        glm::mat4 matrixModelMusIzq = glm::translate(matrixModelCuerpo, glm::vec3(0.2f, -0.2f - 1.0f, 0.0f)); // Lado izquierdo y desplazada 1 unidad hacia abajo
+        matrixModelMusIzq = glm::rotate(matrixModelMusIzq, glm::radians(-rotacionPiernas), glm::vec3(1.0f, 0.0f, 0.0f)); // Rotación opuesta opcional para paso
+        model = matrixModelMusIzq;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader); // Reutiliza el modelo musDer
+
+        // Pie Izquierdo (Reutiliza piederecho)
+        model = glm::translate(matrixModelMusIzq, glm::vec3(0.0f, -0.8f, 0.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        piederecho.Draw(lightingShader); // Reutiliza el modelo piederecho
         
         
         // ===================== LÁMPARA (opcional) =====================
