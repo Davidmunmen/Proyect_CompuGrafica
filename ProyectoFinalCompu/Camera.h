@@ -119,10 +119,13 @@ public:
 	{
 		return this->zoom;
 	}
-
 	glm::vec3 GetPosition()
 	{
 		return this->position;
+	}
+	void SetPosition(glm::vec3 pos) //Seguir la camara con la luz 
+	{ 
+		this->position; 
 	}
 
 	glm::vec3 GetFront()
