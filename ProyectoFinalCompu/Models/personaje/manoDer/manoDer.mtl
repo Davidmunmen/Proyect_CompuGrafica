@@ -1,7 +1,7 @@
-# Blender 5.2.3 LTS MTL File: 'manoDer_2.blend'
+# Blender 5.2.3 LTS MTL File: 'completo.blend'
 # www.blender.org
 
-newmtl model
+newmtl model.003
 Ns 250.000000
 Ka 1.000000 1.000000 1.000000
 Ks 0.500000 0.500000 0.500000
