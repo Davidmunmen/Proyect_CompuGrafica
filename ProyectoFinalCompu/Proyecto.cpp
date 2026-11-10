@@ -507,14 +507,14 @@ int main()
 
         // ===================== PISO =====================
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -2.0f));
-        model = glm::scale(model, glm::vec3(0.4f, 0.2f, 2.0f));
+        model = glm::translate(model, glm::vec3(-2.0f, -0.0f, -2.2f));
+        model = glm::scale(model, glm::vec3(0.4f, 0.2f, 2.1f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Piso.Draw(lightingShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, -2.0f));
-        model = glm::scale(model, glm::vec3(0.4f, 0.2f, 2.0f));
+        model = glm::translate(model, glm::vec3(2.0f, -0.0f, -2.2f));
+        model = glm::scale(model, glm::vec3(0.4f, 0.2f, 2.1f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Piso.Draw(lightingShader);
 
@@ -529,27 +529,27 @@ int main()
          model = glm::scale(model, glm::vec3(0.4f, 0.2f, 1.0f));
          glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
          Piso.Draw(lightingShader);*/
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.4f, 0.25f, 0.1f);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 1.0f, 1.0f, 1.0f);
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -5.7f));
-        model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
+        model = glm::scale(model, glm::vec3(0.85f, 0.2f, 0.7f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -2.2f));
-        model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
+        model = glm::scale(model, glm::vec3(0.85f, 0.2f, 0.7f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -0.1f, 1.2f));
-        model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, 1.3f));
+        model = glm::scale(model, glm::vec3(0.85f, 0.2f, 0.7f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.1f, 0.1f, 0.1f);
-
+        // Pintamos el material del piso de un tono más claro para que reciba la luz
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.8f, 0.8f, 0.8f);
         // ===================== ARCO =====================
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, 1.8f));
