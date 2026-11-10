@@ -1,0 +1,17 @@
+# Blender 5.2.2 LTS MTL File: 'tumba.blend'
+# www.blender.org
+
+newmtl Material.001
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+Ps 0.000000
+Pc 0.000000
+Pcr 0.030000
+aniso 0.000000
+anisor 0.000000
+map_Kd tumba_texture_diffuse.png
+map_Pm tumba_texture_metallic.png
+map_Pr tumba_texture_roughness.png
