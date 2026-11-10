@@ -66,8 +66,8 @@ glm::vec3 todasLasVelas[] = {
     glm::vec3(0.7f, -0.09f, -6.0f), // Vela Derecha
     glm::vec3(-0.7f, -0.09f, -6.0f),// Vela Izquierda
     // Velas extra cerca de la ofrenda (por si acaso)
-    glm::vec3(1.0f, -0.09f, 2.3f),
-    glm::vec3(-1.0f, -0.09f, 2.3f)
+    glm::vec3(0.7f, -0.09f, -10.0f),
+    glm::vec3(-0.7f, -0.09f, -10.0f)
 };
 const int NUM_VELAS_TOTAL = 8;
 const int MAX_LUCES = 4;
@@ -193,6 +193,19 @@ int main()
     Model torso_mujer((char*)"Models/personaje/torso_mujer/torso_mujer.obj");
     Model falda_mujer((char*)"Models/personaje/torso_mujer/falda_mujer.obj");
 
+    //Modelos Abueitos
+
+    Model mascaraA((char*)"Models/personaje/mascaraA/mascaraA.obj");
+
+
+    //Cementerio
+    
+    Model tumba((char*)"Models/Cementerio/Tumba/TumbaF.obj");
+    Model arcoP((char*)"Models/Cementerio/arcoP/arcoP.obj");
+    Model campana((char*)"Models/Cementerio/campana/campana.obj");
+    Model velass((char*)"Models/Cementerio/velass/velassimples.obj");
+    Model cempa((char*)"Models/Cementerio/cempa/cempa.obj");
+   
     // Set texture units
     lightingShader.Use();
     glUniform1i(glGetUniformLocation(lightingShader.Program, "Material.difuse"), 0);
@@ -417,6 +430,40 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Piso.Draw(lightingShader);
 
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -12.0f));
+        model = glm::scale(model, glm::vec3(0.4f, 0.2f, 2.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        Piso.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.0f, 0.0f, -12.0f));
+        model = glm::scale(model, glm::vec3(0.4f, 0.2f, 2.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        Piso.Draw(lightingShader);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, -16.2f));
+        model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        PisoA.Draw(lightingShader);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, -12.7f));
+        model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        PisoA.Draw(lightingShader);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, -9.2f));
+        model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        PisoA.Draw(lightingShader);
+
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -5.7f));
         model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
@@ -430,10 +477,13 @@ int main()
         PisoA.Draw(lightingShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -0.1f, 1.2f));
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, 1.3f));
         model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
+
+       
+
 
         // ===================== ARCO =====================
         model = glm::mat4(1.0f);
@@ -441,6 +491,8 @@ int main()
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
+
+
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -2.5f));
@@ -453,6 +505,163 @@ int main()
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, -10.5f));
+        model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+
+        // ===================== Cementerio =====================
+
+        //--Tumbas---
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.4f, -0.2f, -12.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.4f, -0.2f, -12.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.4f, -0.2f, -13.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.4f, -0.2f, -13.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.4f, -0.2f, -15.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.4f, -0.2f, -15.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.4f, -0.2f, -16.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.4f, -0.2f, -16.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        tumba.Draw(lightingShader);
+
+        //--Arco---
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -0.07f, -11.0f));
+        model = glm::scale(model, glm::vec3(3.15f, 3.15f, 3.15f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        arcoP.Draw(lightingShader);
+
+        //--Campana--
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 1.51f, -11.0f));
+        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        campana.Draw(lightingShader);
+
+        //--Velass--
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -28.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        velass.Draw(lightingShader);
+
+        //--Cempa--
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.001213f, -0.01825f, -14.27f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cempa.Draw(lightingShader);
+
+        //--ArcoCempa--
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.77f, -0.1f, -12.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.77f, -0.1f, -13.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.77f, -0.1f, -15.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.77f, -0.1f, -16.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.77f, -0.1f, -12.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.77f, -0.1f, -13.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.77f, -0.1f, -15.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-2.77f, -0.1f, -16.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        base.Draw(lightingShader);
+
+
+
+
 
         // ===================== VELAS =====================
         model = glm::mat4(1.0f);
@@ -491,6 +700,17 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         velas.Draw(lightingShader);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        velas.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        velas.Draw(lightingShader);
         // ===================== OFRENDA =====================
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -4.0f));
@@ -619,7 +839,130 @@ int main()
         model = matrixPiernaIzq;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
+        // ===================== PERSONAJE ABUELITO =====================
 
+        //Numero 1------------
+        glm::mat4 matrixModelCuerpoA = glm::mat4(1.0f);
+        // Traslación general: mueve TODO el modelo (ej. -3.0f hacia la izquierda en X)
+        matrixModelCuerpoA = glm::translate(matrixModelCuerpoA, glm::vec3(2.0f, 0.75f, -9.2f));
+
+        // 1. Dibujar Cuerpo y Cabeza (Tamaño y posición normal)
+        model = matrixModelCuerpoA;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+        cabeza.Draw(lightingShader);
+
+        // 2. Configurar y Dibujar la Máscara (Con escala independiente)
+        glm::mat4 matrixModelMascara = matrixModelCuerpoA;
+        // Cambia los valores de escala (1.5f) según el tamaño que necesites
+        matrixModelMascara = glm::scale(matrixModelMascara, glm::vec3(0.1f, 0.1f, 0.1f));
+        // matrixModelMascara = glm::translate(matrixModelMascara, glm::vec3(0.0f, 0.0f, 0.05f)); // Descomenta si necesitas ajustarla hacia adelante
+        matrixModelMascara = glm::translate(matrixModelMascara, glm::vec3(0.2f, 3.0f, 0.8f));
+
+        matrixModelMascara = glm::rotate(matrixModelMascara, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = matrixModelMascara;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        mascaraA.Draw(lightingShader);
+
+        // 3. Dibujar Brazo Derecho
+        glm::mat4 matrixModelBrazoDerA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroDer, rotacionBrazos);
+        model = matrixModelBrazoDerA;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+        manoDer.Draw(lightingShader);
+
+        // 4. Dibujar Brazo Izquierdo
+        glm::mat4 matrixModelBrazoIzqA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroIzq, -rotacionBrazos);
+        model = glm::translate(matrixModelBrazoIzqA, glm::vec3(0.06f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
+        model = matrixModelBrazoIzqA;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        // 5. Dibujar Pierna Derecha
+        glm::mat4 matrixModelPiernaDerA = RotarEnPivote(matrixModelCuerpoA, pivoteCaderaDer, rotacionPiernas);
+        model = matrixModelPiernaDerA;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = glm::scale(matrixModelPiernaDerA, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        // 6. Dibujar Pierna Izquierda
+        glm::mat4 matrixModelPiernaIzqA = RotarEnPivote(matrixModelCuerpoA, pivoteCaderaIzq, -rotacionPiernas);
+        model = glm::scale(matrixModelPiernaIzqA, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = matrixModelPiernaIzqA;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        //numero 2------------------
+        glm::mat4 matrixModelCuerpoA2 = glm::mat4(1.0f);
+        // Traslación general: mueve TODO el modelo (ej. -3.0f hacia la izquierda en X)
+        matrixModelCuerpoA2 = glm::translate(matrixModelCuerpoA2, glm::vec3(2.5f, 0.75f, -9.2f));
+
+        // 1. Dibujar Cuerpo y Cabeza (Tamaño y posición normal)
+        model = matrixModelCuerpoA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+        cabeza.Draw(lightingShader);
+
+        // 2. Configurar y Dibujar la Máscara (Con escala independiente)
+        glm::mat4 matrixModelMascara2 = matrixModelCuerpoA2;
+        // Cambia los valores de escala (1.5f) según el tamaño que necesites
+        matrixModelMascara2 = glm::scale(matrixModelMascara2, glm::vec3(0.1f, 0.1f, 0.1f));
+        // matrixModelMascara = glm::translate(matrixModelMascara, glm::vec3(0.0f, 0.0f, 0.05f)); // Descomenta si necesitas ajustarla hacia adelante
+        matrixModelMascara2 = glm::translate(matrixModelMascara2, glm::vec3(0.2f, 3.0f, 0.8f));
+
+        matrixModelMascara2 = glm::rotate(matrixModelMascara2, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = matrixModelMascara2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        mascaraA.Draw(lightingShader);
+
+        // 3. Dibujar Brazo Derecho
+        glm::mat4 matrixModelBrazoDerA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteHombroDer, rotacionBrazos);
+        model = matrixModelBrazoDerA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+        manoDer.Draw(lightingShader);
+
+        // 4. Dibujar Brazo Izquierdo
+        glm::mat4 matrixModelBrazoIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteHombroIzq, -rotacionBrazos);
+        model = glm::translate(matrixModelBrazoIzqA2, glm::vec3(0.06f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
+        model = matrixModelBrazoIzqA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        // 5. Dibujar Pierna Derecha
+        glm::mat4 matrixModelPiernaDerA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaDer, rotacionPiernas);
+        model = matrixModelPiernaDerA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = glm::scale(matrixModelPiernaDerA2, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        // 6. Dibujar Pierna Izquierda
+        glm::mat4 matrixModelPiernaIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaIzq, -rotacionPiernas);
+        model = glm::scale(matrixModelPiernaIzqA2, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = matrixModelPiernaIzqA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+       
         // ===================== LÁMPARA =====================
         lampShader.Use();
         modelLoc = glGetUniformLocation(lampShader.Program, "model");
@@ -698,9 +1041,9 @@ int main()
         glBindVertexArray(quadVAO);
 
         GLuint texturas[] = { papelTexture1, papelTexture2, papelTexture3 };
-        float posicionesZ[] = { 2.1f, -2.2f, -6.2f };
+        float posicionesZ[] = { 2.1f, -2.2f, -6.2f, -10.2f };
 
-        for (int arco = 0; arco < 3; arco++) {
+        for (int arco = 0; arco < 4; arco++) {
             for (int i = 0; i < 3; i++) {
                 glBindTexture(GL_TEXTURE_2D, texturas[(arco + i) % 3]);
 
