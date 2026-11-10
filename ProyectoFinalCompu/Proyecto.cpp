@@ -531,7 +531,6 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Piso.Draw(lightingShader);
 
-<<<<<<< HEAD
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -12.0f));
@@ -566,20 +565,8 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
-=======
-        /* model = glm::mat4(1.0f);
-         model = glm::translate(model, glm::vec3(2.0f, 0.0f,-5.0f));
-         model = glm::scale(model, glm::vec3(0.4f, 0.2f, 1.0f));
-         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-         Piso.Draw(lightingShader);
 
-         model = glm::mat4(1.0f);
-         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -5.0f));
-         model = glm::scale(model, glm::vec3(0.4f, 0.2f, 1.0f));
-         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-         Piso.Draw(lightingShader);*/
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.4f, 0.25f, 0.1f);
->>>>>>> origin/main
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -5.7f));
         model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
@@ -598,12 +585,10 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
-<<<<<<< HEAD
        
 
-=======
+
         glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.1f, 0.1f, 0.1f);
->>>>>>> origin/main
 
         // ===================== ARCO =====================
         model = glm::mat4(1.0f);
@@ -612,12 +597,9 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
 
-<<<<<<< HEAD
 
 
-=======
     
->>>>>>> origin/main
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -2.5f));
         model = glm::scale(model, glm::vec3(1.0f, 1.1f, 1.0f));
@@ -631,7 +613,6 @@ int main()
         base.Draw(lightingShader);
         // ===================== Plantas =====================
 
-<<<<<<< HEAD
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -10.5f));
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
@@ -782,7 +763,7 @@ int main()
         model = glm::translate(model, glm::vec3(-2.77f, -0.1f, -16.5f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::pvalue_ptr(model));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
 
 
@@ -790,9 +771,7 @@ int main()
 
 
         // ===================== VELAS =====================
-=======
 // Planta 1
->>>>>>> origin/main
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.4f, 0.0f, 1.5f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -840,19 +819,6 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         planta.Draw(lightingShader);
 
-<<<<<<< HEAD
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
-
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
-=======
         // Planta 7
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(2.4f, 0.0f, -1.0f));
@@ -901,6 +867,17 @@ int main()
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             velas.Draw(lightingShader);
 
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        velas.Draw(lightingShader);
+
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -10.0f));
+        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        velas.Draw(lightingShader);
             // Bucle para las 5 velitas de cada base
             for (int i = 0; i < 5; i++) {
                 model = glm::mat4(1.0f);
@@ -922,7 +899,6 @@ int main()
                 fuego.Draw(lightingShader);
             }
         }
->>>>>>> origin/main
         // ===================== OFRENDA =====================
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -4.0f));
@@ -1053,7 +1029,6 @@ int main()
         pieiz.Draw(lightingShader);
         // ===================== PERSONAJE ABUELITO =====================
 
-<<<<<<< HEAD
         //Numero 1------------
         glm::mat4 matrixModelCuerpoA = glm::mat4(1.0f);
         // Traslación general: mueve TODO el modelo (ej. -3.0f hacia la izquierda en X)
@@ -1080,40 +1055,17 @@ int main()
         // 3. Dibujar Brazo Derecho
         glm::mat4 matrixModelBrazoDerA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroDer, rotacionBrazos);
         model = matrixModelBrazoDerA;
-=======
-        // ===================== SEGUNDO HOMBRE (Lado Derecho) =====================
-// Creamos una matriz base para el hombre del lado derecho
-        glm::mat4 matrixModel2H = glm::mat4(1.0f);
-        matrixModel2H = glm::translate(matrixModel2H, glm::vec3(2.0f, 0.75f, 0.0f));
-        
-
-        // Dibujamos al hombre usando la nueva matriz base
-        model = matrixModel2H;
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        cuerpo.Draw(lightingShader);
-        cabeza.Draw(lightingShader);
-        mascara.Draw(lightingShader);
-
-        glm::mat4 brazoDerH = RotarEnPivote(matrixModel2H, pivoteHombroDer, rotacionBrazos);
-        model = brazoDerH;
->>>>>>> origin/main
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
         manoDer.Draw(lightingShader);
 
-<<<<<<< HEAD
         // 4. Dibujar Brazo Izquierdo
         glm::mat4 matrixModelBrazoIzqA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroIzq, -rotacionBrazos);
         model = glm::translate(matrixModelBrazoIzqA, glm::vec3(0.06f, 0.0f, 0.0f));
-=======
-        glm::mat4 brazoIzqH = RotarEnPivote(matrixModel2H, pivoteHombroIzq, -rotacionBrazos);
-        model = glm::translate(brazoIzqH, glm::vec3(0.06f, 0.0f, 0.0f));
->>>>>>> origin/main
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
 
-<<<<<<< HEAD
         model = matrixModelBrazoIzqA;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
@@ -1171,7 +1123,60 @@ int main()
         // 4. Dibujar Brazo Izquierdo
         glm::mat4 matrixModelBrazoIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteHombroIzq, -rotacionBrazos);
         model = glm::translate(matrixModelBrazoIzqA2, glm::vec3(0.06f, 0.0f, 0.0f));
-=======
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
+        model = matrixModelBrazoIzqA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        // 5. Dibujar Pierna Derecha
+        glm::mat4 matrixModelPiernaDerA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaDer, rotacionPiernas);
+        model = matrixModelPiernaDerA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = glm::scale(matrixModelPiernaDerA2, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        // 6. Dibujar Pierna Izquierda
+        glm::mat4 matrixModelPiernaIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaIzq, -rotacionPiernas);
+        model = glm::scale(matrixModelPiernaIzqA2, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = matrixModelPiernaIzqA2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+       
+
+        // ===================== SEGUNDO HOMBRE (Lado Derecho) =====================
+// Creamos una matriz base para el hombre del lado derecho
+        glm::mat4 matrixModel2H = glm::mat4(1.0f);
+        matrixModel2H = glm::translate(matrixModel2H, glm::vec3(2.0f, 0.75f, 0.0f));
+        
+
+        // Dibujamos al hombre usando la nueva matriz base
+        model = matrixModel2H;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+        cabeza.Draw(lightingShader);
+        mascara.Draw(lightingShader);
+
+        glm::mat4 brazoDerH = RotarEnPivote(matrixModel2H, pivoteHombroDer, rotacionBrazos);
+        model = brazoDerH;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+        manoDer.Draw(lightingShader);
+
+        glm::mat4 brazoIzqH = RotarEnPivote(matrixModel2H, pivoteHombroIzq, -rotacionBrazos);
+        model = glm::translate(brazoIzqH, glm::vec3(0.06f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
         model = brazoIzqH;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
@@ -1232,37 +1237,10 @@ int main()
         // Brazo Izquierdo
         glm::mat4 brazoIzqMujer2 = RotarEnPivote(matrixTorsoMujer2, pivoteHombroIzq, -rotacionBrazos);
         model = glm::translate(brazoIzqMujer2, glm::vec3(0.03f, 0.02f, 0.0f));
->>>>>>> origin/main
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
 
-<<<<<<< HEAD
-        model = matrixModelBrazoIzqA2;
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        manoIzq.Draw(lightingShader);
-
-        // 5. Dibujar Pierna Derecha
-        glm::mat4 matrixModelPiernaDerA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaDer, rotacionPiernas);
-        model = matrixModelPiernaDerA2;
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        musDer.Draw(lightingShader);
-
-        model = glm::scale(matrixModelPiernaDerA2, glm::vec3(-1.0f, 1.0f, 1.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        pieiz.Draw(lightingShader);
-
-        // 6. Dibujar Pierna Izquierda
-        glm::mat4 matrixModelPiernaIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaIzq, -rotacionPiernas);
-        model = glm::scale(matrixModelPiernaIzqA2, glm::vec3(-1.0f, 1.0f, 1.0f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        musDer.Draw(lightingShader);
-
-        model = matrixModelPiernaIzqA2;
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        pieiz.Draw(lightingShader);
-       
-=======
         model = glm::translate(brazoIzqMujer2, glm::vec3(-0.03f, 0.0f, 0.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
@@ -1291,7 +1269,6 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
 
->>>>>>> origin/main
         // ===================== LÁMPARA =====================
         lightingShader.Use();        
        modelLoc = glGetUniformLocation(lampShader.Program, "model");
@@ -1376,12 +1353,8 @@ int main()
 
         // Arreglo de texturas
         GLuint texturas[] = { papelTexture1, papelTexture2, papelTexture3 };
-<<<<<<< HEAD
         float posicionesZ[] = { 2.1f, -2.2f, -6.2f, -10.2f };
-=======
-        // Posiciones Z 
-        float posicionesZ[] = { 2.1f, -2.2f, -6.2f };
->>>>>>> origin/main
+     
 
         for (int arco = 0; arco < 4; arco++) {
             for (int i = 0; i < 3; i++) {
