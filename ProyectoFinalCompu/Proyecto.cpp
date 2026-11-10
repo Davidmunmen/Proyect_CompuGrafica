@@ -79,40 +79,57 @@ glm::vec3 velaPositions[] = {
     glm::vec3(-0.7f, -0.09f, 2.3f)
 };
 
+
 // Deltatime
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
+// Variables para los Keyframes del fuego
+#define MAX_FUEGO_FRAMES 3
+int fuegoPlayIndex = 0;
+float fuegoY = -0.09f;
+float fuegoEscala = 1.0f;
+float fuegoYInc = 0.0f;
+float fuegoEscalaInc = 0.0f;
+int i_fuego_curr_steps = 0;
+int i_fuego_max_steps = 40;
+
+struct FuegoFrame {
+    float y;
+    float escala;
+    float yInc;
+    float escalaInc;
+} FuegoKeyFrames[MAX_FUEGO_FRAMES];
 // Variables de animación jerárquica para las extremidades del personaje
 GLfloat rotacionBrazos = 0.0f;
 GLfloat rotacionPiernas = 0.0f;
-
 // Variables para la animación de baile de la mujer
-float anguloBaile = 0.0f;           // torso (contra-balanceo)
-float anguloFalda = 0.0f;           // cadera/falda (nodo padre de las piernas)
-float rotacionPiernasMujer = 0.0f;  // paso leve en X
+float anguloBaile = 0.0f;
+float anguloFalda = 0.0f;
+float rotacionPiernasMujer = 0.0f;
 bool animandoBaile = false;
 
 // Estados de la máquina de estados para el baile
 int estadoBaile = 0;
-const float MAX_BAILE = 2.0f;               
-const float MAX_FALDA = 1.5f;               
-const float MAX_PIERNA = 2.0f;              
+const float MAX_BAILE = 2.0f;
+const float MAX_FALDA = 1.5f;
+const float MAX_PIERNA = 2.0f;
 const float VEL_BAILE = 6.0f;
 const float VEL_FALDA = 4.5f;
-const float VEL_PIERNA = 6.0f;            
-
-// Si el muslo (musDer) se mueve con la pierna contraria, cambia este valor a false.
-// true  = el modelo musDer esta modelado del lado x < 0 (lado derecho del personaje)
-// false = el modelo musDer esta modelado del lado x > 0
-const bool MUSDER_NATIVO_EN_X_NEGATIVO = true;
-
+const float VEL_PIERNA = 6.0f;
 
 const glm::vec3 pivoteHombroDer(-0.5f, 4.0f, 0.0f);
 const glm::vec3 pivoteHombroIzq(0.5f, 4.0f, 0.0f);
 const glm::vec3 pivoteCaderaDer(-0.3f, 2.2f, 0.0f);
 const glm::vec3 pivoteCaderaIzq(0.3f, 2.2f, 0.0f);
 glm::vec3 pivoteCintura(0.0f, 2.4f, 0.0f);
+
+
+
+// Si el muslo (musDer) se mueve con la pierna contraria, cambia este valor a false.
+// true  = el modelo musDer esta modelado del lado x < 0 (lado derecho del personaje)
+// false = el modelo musDer esta modelado del lado x > 0
+const bool MUSDER_NATIVO_EN_X_NEGATIVO = true;
 
 // Rota alrededor de un pivote (con opción de eje)
 glm::mat4 RotarEnPivote(const glm::mat4& base, const glm::vec3& pivote, float grados, glm::vec3 eje = glm::vec3(1.0f, 0.0f, 0.0f))
@@ -177,6 +194,7 @@ int main()
     Model base((char*)"Models/Arco/base.obj");
     Model PisoA((char*)"Models/Arco/pisoA.obj");
     Model velas((char*)"Models/velas/velas.obj");
+    Model planta((char*)"Models/Planta/planta.obj");
     Model ofrenda((char*)"Models/ofrenda/ofrenda.obj");
     Model copa((char*)"Models/COPA.obj");
     // Modelos del Personaje Hombre
@@ -187,6 +205,8 @@ int main()
     Model manoIzq((char*)"Models/personaje/manoIzq/manoIzq.obj");
     Model mascara((char*)"Models/personaje/mascara/mascara.obj");
     Model musDer((char*)"Models/personaje/musDer/musDer.obj");
+    Model piederecho((char*)"Models/personaje/pieizq/PieIzq.obj"); 
+    Model fuego((char*)"Models/Fuego/Fuego.obj");
     Model pieiz((char*)"Models/personaje/pieizq/PieIzq.obj");
 
     // Modelos de la Mujer
@@ -229,9 +249,9 @@ int main()
         // Positions
         -1.0f,  1.0f, -1.0f,
         -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f,  1.0f, -1.0f,
         -1.0f,  1.0f, -1.0f,
 
         -1.0f, -1.0f,  1.0f,
@@ -241,36 +261,52 @@ int main()
         -1.0f,  1.0f,  1.0f,
         -1.0f, -1.0f,  1.0f,
 
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
 
         -1.0f, -1.0f,  1.0f,
         -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f, -1.0f,  1.0f,
         -1.0f, -1.0f,  1.0f,
 
         -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f, -1.0f,
+        1.0f,  1.0f,  1.0f,
+        1.0f,  1.0f,  1.0f,
         -1.0f,  1.0f,  1.0f,
         -1.0f,  1.0f, -1.0f,
 
         -1.0f, -1.0f, -1.0f,
         -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
+        1.0f, -1.0f, -1.0f,
         -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
+        1.0f, -1.0f,  1.0f
+    };
+
+
+    GLuint indices[] =
+    {  // Note that we start from 0!
+        0,1,2,3,
+        4,5,6,7,
+        8,9,10,11,
+        12,13,14,15,
+        16,17,18,19,
+        20,21,22,23,
+        24,25,26,27,
+        28,29,30,31,
+        32,33,34,35
     };
 
     // ===================== CONFIGURACIÓN DEL SKYBOX (VAO, VBO y TEXTURAS) =====================
+    // 
+    //skybox
     GLuint skyboxVBO, skyboxVAO;
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
@@ -290,11 +326,12 @@ int main()
     faces.push_back("SkyBox/front.jpg");
 
     GLuint cubmapTexture = TextureLoading::LoadCubemap(faces);
-
     // ============================Configuración papel =====================================
+
     glm::mat4 projection = glm::perspective(camera.GetZoom(),
         (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 200.0f);
 
+    // Configurar el plano del papel picado
     GLuint quadVAO, quadVBO, quadEBO;
     glGenVertexArrays(1, &quadVAO);
     glGenBuffers(1, &quadVBO);
@@ -307,45 +344,93 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quadEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
 
+    // Posición
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    // Coordenada de textura
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
+    // Cargar la textura 1 del papel picado
     GLuint papelTexture1 = SOIL_load_OGL_texture(
-        "Models/papel.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
+        "Models/papel.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
         SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
     );
 
+    // Cargar la textura 2 del papel picado
     GLuint papelTexture2 = SOIL_load_OGL_texture(
-        "Models/papel2.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
+        "Models/papel2.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
         SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
     );
 
+    // Cargar la textura 3 del papel picado
     GLuint papelTexture3 = SOIL_load_OGL_texture(
-        "Models/papel3.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
+        "Models/papel3.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
         SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
     );
 
     GLuint humoTexture = SOIL_load_OGL_texture(
-        "Models/humo.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID,
+        "Models/humo.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
         SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
     );
 
     // Game loop
     while (!glfwWindowShouldClose(window))
     {
+        // Delta time
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        // ===================== ANIMACIÓN KEYFRAMES DEL FUEGO =====================
+// Inicializamos los frames la primera vez
+        if (fuegoPlayIndex == 0 && i_fuego_curr_steps == 0 && fuegoYInc == 0.0f) {
+            FuegoKeyFrames[0].y = -0.09f;   FuegoKeyFrames[0].escala = 1.0f;
+            FuegoKeyFrames[1].y = -0.05f;   FuegoKeyFrames[1].escala = 1.3f;
+            FuegoKeyFrames[2].y = -0.12f;   FuegoKeyFrames[2].escala = 0.8f;
 
+            // Calculamos el primer incremento
+            FuegoKeyFrames[0].yInc = (FuegoKeyFrames[1].y - FuegoKeyFrames[0].y) / i_fuego_max_steps;
+            FuegoKeyFrames[0].escalaInc = (FuegoKeyFrames[1].escala - FuegoKeyFrames[0].escala) / i_fuego_max_steps;
+        }
+
+        if (i_fuego_curr_steps >= i_fuego_max_steps) {
+            // Pasamos al siguiente frame
+            fuegoPlayIndex++;
+            if (fuegoPlayIndex >= MAX_FUEGO_FRAMES) {
+                fuegoPlayIndex = 0; // Volvemos al inicio (bucle infinito)
+            }
+
+            // Calculamos los incrementos para el nuevo frame
+            int siguienteFrame = (fuegoPlayIndex + 1) % MAX_FUEGO_FRAMES;
+            FuegoKeyFrames[fuegoPlayIndex].yInc = (FuegoKeyFrames[siguienteFrame].y - FuegoKeyFrames[fuegoPlayIndex].y) / i_fuego_max_steps;
+            FuegoKeyFrames[fuegoPlayIndex].escalaInc = (FuegoKeyFrames[siguienteFrame].escala - FuegoKeyFrames[fuegoPlayIndex].escala) / i_fuego_max_steps;
+
+            i_fuego_curr_steps = 0;
+        }
+        else {
+            // Aplicamos los incrementos actuales
+            fuegoY += FuegoKeyFrames[fuegoPlayIndex].yInc;
+            fuegoEscala += FuegoKeyFrames[fuegoPlayIndex].escalaInc;
+            i_fuego_curr_steps++;
+        }
+        // Events
         glfwPollEvents();
         DoMovement();
         Animation();
 
+        // Clear
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // OpenGL options
         glEnable(GL_DEPTH_TEST);
 
         // ===================== SHADER DE ILUMINACIÓN =====================
@@ -356,15 +441,17 @@ int main()
         GLint viewPosLoc = glGetUniformLocation(lightingShader.Program, "viewPos");
         glUniform3f(viewPosLoc, camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
 
-        // Directional light
+        // Directional light (LUZ GLOBAL MÁS BAJA)
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.direction"), -0.2f, -1.0f, -0.3f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.ambient"), 0.12f, 0.12f, 0.15f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.diffuse"), 0.15f, 0.15f, 0.15f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "dirLight.specular"), 0.05f, 0.05f, 0.05f);
 
-        // ===== ASIGNACIÓN DINÁMICA DE LUCES =====
+        // ===== ASIGNACIÓN LUCES=====
         glm::vec3 velaColor(1.0f, 0.6f, 0.2f);
+        // ===== ASIGNACIÓN DINÁMICA DE LUCES =====
 
+        // 1. Calculamos las distancias
         std::vector<std::pair<float, int>> distancias;
         for (int i = 0; i < NUM_VELAS_TOTAL; i++) {
             glm::vec3 posFlama = todasLasVelas[i] + glm::vec3(0.0f, 0.35f, 0.0f);
@@ -386,17 +473,31 @@ int main()
             float fade = glm::clamp(1.0f - (distancias[i].first - 8.0f) / 4.0f, 0.0f, 1.0f);
 
             glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "position").c_str()), lp.x, lp.y, lp.z);
-            glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "ambient").c_str()), velaColor.x * 0.05f, velaColor.y * 0.05f, velaColor.z * 0.05f);
-            glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "diffuse").c_str()), velaColor.x * flicker * fade * 0.6f, velaColor.y * flicker * fade * 0.6f, velaColor.z * flicker * fade * 0.6f);
-            glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "specular").c_str()), 0.0f, 0.0f, 0.0f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, (base + "constant").c_str()), 1.0f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, (base + "linear").c_str()), 0.35f);
-            glUniform1f(glGetUniformLocation(lightingShader.Program, (base + "quadratic").c_str()), 0.44f);
-        }
 
+            // --- AMBIENTE
+            glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "ambient").c_str()),
+                velaColor.x * 0.05f, velaColor.y * 0.05f, velaColor.z * 0.05f);
+
+            // --- DIFFUSE 
+            glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "diffuse").c_str()),
+                velaColor.x * flicker * fade * 0.6f, velaColor.y * flicker * fade * 0.6f, velaColor.z * flicker * fade * 0.6f);
+
+            // --- SPECULAR APAGADO
+            glUniform3f(glGetUniformLocation(lightingShader.Program, (base + "specular").c_str()),
+                0.0f, 0.0f, 0.0f);
+
+            glUniform1f(glGetUniformLocation(lightingShader.Program, (base + "constant").c_str()), 1.0f);
+
+            //Cambio para aumentar el alcance de las luces 
+            glUniform1f(glGetUniformLocation(lightingShader.Program, (base + "linear").c_str()), 0.14f);
+            glUniform1f(glGetUniformLocation(lightingShader.Program, (base + "quadratic").c_str()), 0.07f);
+        }
+        //=====================LUZ VELAS=====================
         // SpotLight
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.position"), camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
-        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.direction"), camera.GetFront().x, camera.GetFront().y, camera.GetFront().z);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.position"),
+            camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.direction"),
+            camera.GetFront().x, camera.GetFront().y, camera.GetFront().z);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.ambient"), 0.02f, 0.02f, 0.02f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.diffuse"), 0.05f, 0.05f, 0.08f);
         glUniform3f(glGetUniformLocation(lightingShader.Program, "spotLight.specular"), 0.0f, 0.0f, 0.0f);
@@ -430,6 +531,7 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         Piso.Draw(lightingShader);
 
+<<<<<<< HEAD
 
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -12.0f));
@@ -464,6 +566,20 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
+=======
+        /* model = glm::mat4(1.0f);
+         model = glm::translate(model, glm::vec3(2.0f, 0.0f,-5.0f));
+         model = glm::scale(model, glm::vec3(0.4f, 0.2f, 1.0f));
+         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+         Piso.Draw(lightingShader);
+
+         model = glm::mat4(1.0f);
+         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -5.0f));
+         model = glm::scale(model, glm::vec3(0.4f, 0.2f, 1.0f));
+         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+         Piso.Draw(lightingShader);*/
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.4f, 0.25f, 0.1f);
+>>>>>>> origin/main
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -5.7f));
         model = glm::scale(model, glm::vec3(0.8f, 0.0f, 0.7f));
@@ -482,8 +598,12 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         PisoA.Draw(lightingShader);
 
+<<<<<<< HEAD
        
 
+=======
+        glUniform3f(glGetUniformLocation(lightingShader.Program, "material.ambient"), 0.1f, 0.1f, 0.1f);
+>>>>>>> origin/main
 
         // ===================== ARCO =====================
         model = glm::mat4(1.0f);
@@ -492,8 +612,12 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
 
+<<<<<<< HEAD
 
 
+=======
+    
+>>>>>>> origin/main
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -2.5f));
         model = glm::scale(model, glm::vec3(1.0f, 1.1f, 1.0f));
@@ -505,7 +629,9 @@ int main()
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
+        // ===================== Plantas =====================
 
+<<<<<<< HEAD
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.1f, -10.5f));
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
@@ -656,7 +782,7 @@ int main()
         model = glm::translate(model, glm::vec3(-2.77f, -0.1f, -16.5f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::pvalue_ptr(model));
         base.Draw(lightingShader);
 
 
@@ -664,42 +790,57 @@ int main()
 
 
         // ===================== VELAS =====================
+=======
+// Planta 1
+>>>>>>> origin/main
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.7f, -0.09f, 2.3f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::translate(model, glm::vec3(-2.4f, 0.0f, 1.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        planta.Draw(lightingShader);
 
+        // Planta 2
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, 2.3f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::translate(model, glm::vec3(-2.8f, 0.0f, 0.5f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        planta.Draw(lightingShader);
 
+        // Planta 3
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -2.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::translate(model, glm::vec3(-2.4f, 0.0f, -1.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        planta.Draw(lightingShader);
 
+        // Planta 4
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -2.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::translate(model, glm::vec3(-2.8f, 0.0f, -2.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        planta.Draw(lightingShader);
 
+        // Planta 5
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -6.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::translate(model, glm::vec3(2.4f, 0.0f, 1.5f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        planta.Draw(lightingShader);
 
+        // Planta 6
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -6.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        model = glm::translate(model, glm::vec3(2.8f, 0.0f, 0.5f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
+        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        planta.Draw(lightingShader);
 
+<<<<<<< HEAD
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -10.0f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
@@ -711,6 +852,77 @@ int main()
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         velas.Draw(lightingShader);
+=======
+        // Planta 7
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.4f, 0.0f, -1.0f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
+        model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        planta.Draw(lightingShader);
+
+        // Planta 8
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(2.8f, 0.0f, -2.0f));
+        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
+        model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        planta.Draw(lightingShader);
+
+
+        // ===================== Velas y Fuego Animado =====================
+        lightingShader.Use();
+
+        // Arreglo con las posiciones de tus 6 bases de velas
+        glm::vec3 velasPos[] = {
+            glm::vec3(0.7f, -0.09f, 2.3f),
+            glm::vec3(-0.7f, -0.09f, 2.3f),
+            glm::vec3(-0.7f, -0.09f, -2.0f),
+            glm::vec3(0.7f, -0.09f, -2.0f),
+            glm::vec3(-0.7f, -0.09f, -6.0f),
+            glm::vec3(0.7f, -0.09f, -6.0f)
+        };
+
+        // Posiciones relativas de las 5 velitas (X, Y, Z)
+        glm::vec3 posicionesVelitas[] = {
+            glm::vec3(0.05f,  0.15f, -0.15f),   // Velita 1: Trasera Central
+            glm::vec3(0.5f,   0.13f, -0.15f),   // Velita 2: Trasera Derecha
+            glm::vec3(-0.4f,  0.06f, -0.15f),   // Velita 3: Trasera Izquierda
+            glm::vec3(0.4f,   0.04f, 0.30f),    // Velita 4: Frontal Izquierda
+            glm::vec3(-0.07f, 0.01f, 0.32f)     // Velita 5: Frontal Derecha 
+        };
+
+        // Bucle para las 6 bases de velas
+        for (int v = 0; v < 6; v++) {
+            // Dibujar la base de la vela
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, velasPos[v]);
+            model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+            velas.Draw(lightingShader);
+
+            // Bucle para las 5 velitas de cada base
+            for (int i = 0; i < 5; i++) {
+                model = glm::mat4(1.0f);
+
+                // Posición X y Z
+                float posX = velasPos[v].x + (posicionesVelitas[i].x * 0.2f);
+                float posZ = velasPos[v].z + (posicionesVelitas[i].z * 0.2f);
+
+                // ALTURA INDIVIDUAL + ANIMACIÓN
+                float alturaBase = posicionesVelitas[i].y;
+                float alturaFuego = velasPos[v].y + alturaBase + 0.2f + fuegoY;
+
+                model = glm::translate(model, glm::vec3(posX, alturaFuego, posZ));
+
+                float escalaFinalFuego = 0.04f * fuegoEscala;
+                model = glm::scale(model, glm::vec3(escalaFinalFuego, escalaFinalFuego, escalaFinalFuego));
+
+                glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+                fuego.Draw(lightingShader);
+            }
+        }
+>>>>>>> origin/main
         // ===================== OFRENDA =====================
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -4.0f));
@@ -755,7 +967,7 @@ int main()
         pieiz.Draw(lightingShader);
 
         glm::mat4 matrixModelPiernaIzq = RotarEnPivote(matrixModelCuerpo, pivoteCaderaIzq, -rotacionPiernas);
-        model = glm::scale(matrixModelPiernaIzq, glm::vec3(-1.0f, 1.0f, 1.0f));
+        model = glm::scale(matrixModelPiernaIzq, glm::vec3(-1.0f, 1.0f, 1.0f)); 
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
 
@@ -772,7 +984,7 @@ int main()
         // 1. Torso: se inclina desde la cintura (le agregamos un leve desplazamiento local en Z o X si es necesario centrarlo con la falda)
         glm::mat4 matrixTorsoMujer = RotarEnPivote(matrixModelCuerpoMujer, pivoteCintura, anguloBaile, ejeZ);
         // Desplazamiento correctivo local para meter el torso dentro del volumen de la falda (ajusta estos valores si requieres más o menos espacio)
- 
+
         model = matrixTorsoMujer;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         torso_mujer.Draw(lightingShader);
@@ -814,7 +1026,7 @@ int main()
         glm::mat4 matrixPiernaDer = RotarEnPivote(matrixModelCuerpoMujer, pivoteCaderaDer, rotacionPiernasMujer);
         // Si el modelo del muslo nativo requiere un pequeño ajuste lateral de separación:
         matrixPiernaDer = glm::translate(matrixPiernaDer, glm::vec3(-0.13f, 0.0f, 0.0f));
-		matrixPiernaDer = glm::scale(matrixPiernaDer, glm::vec3(0.9f, 0.8f, 0.9f)); // Ajuste de escala si es necesario
+        matrixPiernaDer = glm::scale(matrixPiernaDer, glm::vec3(0.9f, 0.8f, 0.9f)); // Ajuste de escala si es necesario
         model = matrixPiernaDer;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
@@ -829,7 +1041,7 @@ int main()
         glm::mat4 matrixPiernaIzq = RotarEnPivote(matrixModelCuerpoMujer, pivoteCaderaIzq, -rotacionPiernasMujer);
         // Desplazamiento lateral simétrico para separarla del centro
         matrixPiernaIzq = glm::translate(matrixPiernaIzq, glm::vec3(0.00f, 0.0f, 0.0f));
-		matrixPiernaIzq = glm::scale(matrixPiernaIzq, glm::vec3(0.9f, 0.8f, 0.9f)); // Ajuste de escala si es necesario
+        matrixPiernaIzq = glm::scale(matrixPiernaIzq, glm::vec3(0.9f, 0.8f, 0.9f)); // Ajuste de escala si es necesario
 
         model = matrixPiernaIzq;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -841,6 +1053,7 @@ int main()
         pieiz.Draw(lightingShader);
         // ===================== PERSONAJE ABUELITO =====================
 
+<<<<<<< HEAD
         //Numero 1------------
         glm::mat4 matrixModelCuerpoA = glm::mat4(1.0f);
         // Traslación general: mueve TODO el modelo (ej. -3.0f hacia la izquierda en X)
@@ -867,17 +1080,40 @@ int main()
         // 3. Dibujar Brazo Derecho
         glm::mat4 matrixModelBrazoDerA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroDer, rotacionBrazos);
         model = matrixModelBrazoDerA;
+=======
+        // ===================== SEGUNDO HOMBRE (Lado Derecho) =====================
+// Creamos una matriz base para el hombre del lado derecho
+        glm::mat4 matrixModel2H = glm::mat4(1.0f);
+        matrixModel2H = glm::translate(matrixModel2H, glm::vec3(2.0f, 0.75f, 0.0f));
+        
+
+        // Dibujamos al hombre usando la nueva matriz base
+        model = matrixModel2H;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+        cabeza.Draw(lightingShader);
+        mascara.Draw(lightingShader);
+
+        glm::mat4 brazoDerH = RotarEnPivote(matrixModel2H, pivoteHombroDer, rotacionBrazos);
+        model = brazoDerH;
+>>>>>>> origin/main
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
         manoDer.Draw(lightingShader);
 
+<<<<<<< HEAD
         // 4. Dibujar Brazo Izquierdo
         glm::mat4 matrixModelBrazoIzqA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroIzq, -rotacionBrazos);
         model = glm::translate(matrixModelBrazoIzqA, glm::vec3(0.06f, 0.0f, 0.0f));
+=======
+        glm::mat4 brazoIzqH = RotarEnPivote(matrixModel2H, pivoteHombroIzq, -rotacionBrazos);
+        model = glm::translate(brazoIzqH, glm::vec3(0.06f, 0.0f, 0.0f));
+>>>>>>> origin/main
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
 
+<<<<<<< HEAD
         model = matrixModelBrazoIzqA;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
@@ -935,10 +1171,73 @@ int main()
         // 4. Dibujar Brazo Izquierdo
         glm::mat4 matrixModelBrazoIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteHombroIzq, -rotacionBrazos);
         model = glm::translate(matrixModelBrazoIzqA2, glm::vec3(0.06f, 0.0f, 0.0f));
+=======
+        model = brazoIzqH;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        glm::mat4 piernaDerH = RotarEnPivote(matrixModel2H, pivoteCaderaDer, rotacionPiernas);
+        model = piernaDerH;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = glm::scale(piernaDerH, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        glm::mat4 piernaIzqH = RotarEnPivote(matrixModel2H, pivoteCaderaIzq, -rotacionPiernas);
+        model = glm::scale(piernaIzqH, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = piernaIzqH;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+
+        // ===================== SEGUNDA MUJER (Lado Derecho) =====================
+              // ===================== SEGUNDA MUJER (Lado Derecho) =====================
+        // Usamos variables con un nombre distinto para no chocar con las de la mujer original
+        glm::mat4 matrixModelMujer2 = glm::mat4(1.0f);
+        // La posicionamos a la derecha (X = 1.3f) y giramos 180 grados
+        matrixModelMujer2 = glm::translate(matrixModelMujer2, glm::vec3(1.3f, 0.6f, 0.0f));
+
+        // 1. Torso
+        glm::mat4 matrixTorsoMujer2 = RotarEnPivote(matrixModelMujer2, pivoteCintura, anguloBaile, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = matrixTorsoMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        torso_mujer.Draw(lightingShader);
+
+        // 2. Falda
+        glm::mat4 matrixFaldaMujer2 = RotarEnPivote(matrixModelMujer2, pivoteCintura, anguloBaile, glm::vec3(0.0f, 0.0f, 1.0f));
+        model = matrixFaldaMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        falda_mujer.Draw(lightingShader);
+
+        // 3. Cabeza
+        model = matrixTorsoMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cabeza.Draw(lightingShader);
+
+        // 4. Brazo Derecho
+        glm::mat4 brazoDerMujer2 = RotarEnPivote(matrixTorsoMujer2, pivoteHombroDer, rotacionBrazos);
+        model = glm::translate(brazoDerMujer2, glm::vec3(0.0f, 0.02f, 0.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
+        model = brazoDerMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoDer.Draw(lightingShader);
+
+        // Brazo Izquierdo
+        glm::mat4 brazoIzqMujer2 = RotarEnPivote(matrixTorsoMujer2, pivoteHombroIzq, -rotacionBrazos);
+        model = glm::translate(brazoIzqMujer2, glm::vec3(0.03f, 0.02f, 0.0f));
+>>>>>>> origin/main
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
 
+<<<<<<< HEAD
         model = matrixModelBrazoIzqA2;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
@@ -963,16 +1262,46 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
        
+=======
+        model = glm::translate(brazoIzqMujer2, glm::vec3(-0.03f, 0.0f, 0.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        // Pierna Derecha
+        glm::mat4 piernaDerMujer2 = RotarEnPivote(matrixModelMujer2, pivoteCaderaDer, rotacionPiernasMujer);
+        piernaDerMujer2 = glm::translate(piernaDerMujer2, glm::vec3(-0.13f, 0.0f, 0.0f));
+        piernaDerMujer2 = glm::scale(piernaDerMujer2, glm::vec3(0.9f, 0.8f, 0.9f));
+        model = piernaDerMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = piernaDerMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        // Pierna Izquierda
+        glm::mat4 piernaIzqMujer2 = RotarEnPivote(matrixModelMujer2, pivoteCaderaIzq, -rotacionPiernasMujer);
+        piernaIzqMujer2 = glm::translate(piernaIzqMujer2, glm::vec3(0.00f, 0.0f, 0.0f));
+        piernaIzqMujer2 = glm::scale(piernaIzqMujer2, glm::vec3(0.9f, 0.8f, 0.9f));
+        model = piernaIzqMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = piernaIzqMujer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+>>>>>>> origin/main
         // ===================== LÁMPARA =====================
-        lampShader.Use();
-        modelLoc = glGetUniformLocation(lampShader.Program, "model");
+        lightingShader.Use();        
+       modelLoc = glGetUniformLocation(lampShader.Program, "model");
         viewLoc = glGetUniformLocation(lampShader.Program, "view");
         projLoc = glGetUniformLocation(lampShader.Program, "projection");
 
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-        // ===================== COPA =====================
+       // ===================== COPA =====================
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(1.0f, -0.09f, 2.3f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
@@ -998,6 +1327,7 @@ int main()
         copa.Draw(lightingShader);
 
         // ===================== DIBUJO OFRENDA =====================
+
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.0f, 0.0f, -4.0f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1005,14 +1335,18 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         ofrenda.Draw(lightingShader);
 
+
         // ===================== DIBUJAR SKYBOX =====================
         glDepthFunc(GL_LEQUAL);
         skyboxshader.Use();
 
+        // Le quitamos la traslación a la cámara para que el cielo nos siga
         view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 
         glUniformMatrix4fv(glGetUniformLocation(skyboxshader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(glGetUniformLocation(skyboxshader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+        // ¡El truco para que no se rompan las texturas!
         glUniform1i(glGetUniformLocation(skyboxshader.Program, "skybox"), 0);
 
         glBindVertexArray(skyboxVAO);
@@ -1040,8 +1374,14 @@ int main()
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(quadVAO);
 
+        // Arreglo de texturas
         GLuint texturas[] = { papelTexture1, papelTexture2, papelTexture3 };
+<<<<<<< HEAD
         float posicionesZ[] = { 2.1f, -2.2f, -6.2f, -10.2f };
+=======
+        // Posiciones Z 
+        float posicionesZ[] = { 2.1f, -2.2f, -6.2f };
+>>>>>>> origin/main
 
         for (int arco = 0; arco < 4; arco++) {
             for (int i = 0; i < 3; i++) {
@@ -1067,8 +1407,10 @@ int main()
 
                 glm::mat4 modelPapel = glm::mat4(1.0f);
                 modelPapel = glm::translate(modelPapel, glm::vec3(posX, posY, posicionesZ[arco]));
+
                 modelPapel = glm::rotate(modelPapel, glm::radians(anguloFinalZ), glm::vec3(0.0f, 0.0f, 1.0f));
                 modelPapel = glm::rotate(modelPapel, glm::radians(anguloFinalX), glm::vec3(1.0f, 0.0f, 0.0f));
+
                 modelPapel = glm::scale(modelPapel, glm::vec3(0.4f, 0.4f, 0.6f));
 
                 glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelPapel));
@@ -1079,18 +1421,25 @@ int main()
         // ===================== HUMO DEL COPAL =====================
         glBindTexture(GL_TEXTURE_2D, humoTexture);
 
+        // Arreglo con las posiciones de las 4 copas
         glm::vec3 copasPosiciones[] = {
-            glm::vec3(1.0f, 0.0f, 2.3f),
-            glm::vec3(-1.0f, 0.0f, 2.3f),
-            glm::vec3(0.7f, 0.0f, -7.0f),
-            glm::vec3(-0.7f, 0.0f, -7.0f)
+            glm::vec3(1.0f, 0.0f, 2.3f),   // Copa 1
+            glm::vec3(-1.0f, 0.0f, 2.3f),  // Copa 2
+            glm::vec3(0.7f, 0.0f, -7.0f),  // Copa 3
+            glm::vec3(-0.7f, 0.0f, -7.0f)  // Copa 4
         };
 
-        for (int c = 0; c < 4; c++) {
-            for (int h = 0; h < 3; h++) {
-                float tiempoHumo = fmod(currentFrame * 0.3f + (h * 0.33f) + (c * 0.15f), 1.0f);
+        // Bucle para dibujar el humo en cada una de las 4 copas
+        for (int copa = 0; copa < 4; copa++) {
 
-                float posY = tiempoHumo * 2.5f;
+            // Bucle para hacer que cada columna de humo tenga 3 "nubes" para que se vea más denso
+            for (int h = 0; h < 3; h++) {
+
+                // Matemáticas para que suban infinitamente con un pequeño desfase
+                float tiempoHumo = fmod(currentFrame * 0.3f + (h * 0.33f) + (copa * 0.15f), 1.0f);
+
+                // Sube en Y
+                float posY = 0.0f + (tiempoHumo * 2.5f);
                 float escalaY = 1.0f + (tiempoHumo * 1.5f);
                 float escalaX = 0.5f + (tiempoHumo * 0.5f);
 
@@ -1098,10 +1447,14 @@ int main()
                 float opacidadHumo = 1.0f - tiempoHumo;
                 glUniform1f(glGetUniformLocation(papelShader.Program, "opacidad"), opacidadHumo);
 
-                float vientoX = sin(currentFrame * 1.5f + h + c) * 0.2f;
+                // Movimiento del viento en X (le sumamos 'h' y 'copa' para que no se muevan igual)
+                float vientoX = sin(currentFrame * 1.5f + h + copa) * 0.2f;
 
                 glm::mat4 modelHumo = glm::mat4(1.0f);
-                modelHumo = glm::translate(modelHumo, glm::vec3(copasPosiciones[c].x + vientoX, posY, copasPosiciones[c].z));
+                // Usamos las coordenadas de la copa actual
+                modelHumo = glm::translate(modelHumo, glm::vec3(copasPosiciones[copa].x + vientoX, posY, copasPosiciones[copa].z));
+
+                // Rotación ligera
                 modelHumo = glm::rotate(modelHumo, glm::radians(tiempoHumo * 15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
                 // Escalamos
@@ -1130,7 +1483,7 @@ int main()
     return 0;
 }
 
-// Movimiento de camara y luces
+// Movimiento de cámara y luces
 void DoMovement()
 {
     if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP])
@@ -1149,6 +1502,7 @@ void DoMovement()
     if (keys[GLFW_KEY_U]) pointLightPositions[0].z -= 0.01f;
     if (keys[GLFW_KEY_J]) pointLightPositions[0].z += 0.01f;
 }
+
 
 // Key callback
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -1194,10 +1548,6 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
-// Animación de la mujer controlada por máquina de estados
-// - anguloBaile: pelvis; torso, falda y piernas heredan este giro en Z
-// - anguloFalda: balanceo extra de la falda (relativo a la pelvis) para el "vuelo" del vestido
-// - rotacionPiernasMujer: paso leve en X
 void Animation() {
     if (!animandoBaile) {
         estadoBaile = 0;
