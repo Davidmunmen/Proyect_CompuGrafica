@@ -33,6 +33,8 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void MouseCallback(GLFWwindow* window, double xPos, double yPos);
 void DoMovement();
 void Animation();
+void ActualizarTourCamara();
+void LimitarPosicionCamara();
 
 // Window dimensions
 const GLuint WIDTH = 1000, HEIGHT = 800;
@@ -65,7 +67,7 @@ glm::vec3 todasLasVelas[] = {
     // Arco 3 (Fondo)
     glm::vec3(0.7f, -0.09f, -6.0f), // Vela Derecha
     glm::vec3(-0.7f, -0.09f, -6.0f),// Vela Izquierda
-    // Velas extra cerca de la ofrenda (por si acaso)
+    // Velas extra cerca de la ofrenda
     glm::vec3(0.7f, -0.09f, -10.0f),
     glm::vec3(-0.7f, -0.09f, -10.0f)
 };
@@ -123,12 +125,16 @@ const glm::vec3 pivoteHombroIzq(0.5f, 4.0f, 0.0f);
 const glm::vec3 pivoteCaderaDer(-0.3f, 2.2f, 0.0f);
 const glm::vec3 pivoteCaderaIzq(0.3f, 2.2f, 0.0f);
 glm::vec3 pivoteCintura(0.0f, 2.4f, 0.0f);
-
+// ===================== VARIABLES PARA EL TOUR DE CÁMARA =====================
+bool tourActivo = false;      //iniciamos en false para que el usuario decida si quiere iniciar el tour
+bool tourPausado = false;     // Si el usuario presionó X para pausar
+int estacionActual = 0;       // 0: Camino/Arco, 1: Hombre y Mujer, 2: Ofrenda, 3: Abuelitos, 4: Cementerio
+float progresoEstacion = 0.0f;
+bool esperandoAccion = false; // Si llegó a un punto de tarjeta y espera que el usuario presione X para continuar
 
 
 // Si el muslo (musDer) se mueve con la pierna contraria, cambia este valor a false.
-// true  = el modelo musDer esta modelado del lado x < 0 (lado derecho del personaje)
-// false = el modelo musDer esta modelado del lado x > 0
+
 const bool MUSDER_NATIVO_EN_X_NEGATIVO = true;
 
 // Rota alrededor de un pivote (con opción de eje)
@@ -226,6 +232,12 @@ int main()
     Model velass((char*)"Models/Cementerio/velass/velassimples.obj");
     Model cempa((char*)"Models/Cementerio/cempa/cempa.obj");
    
+    // Cargar texturas informativas para cada estación del tour
+    GLuint tarjetaArco = SOIL_load_OGL_texture("Models/tarjetas/arco.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+    GLuint tarjetaPersonajes = SOIL_load_OGL_texture("Models/tarjetas/personajes.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+    GLuint tarjetaOfrenda = SOIL_load_OGL_texture("Models/tarjetas/ofrenda.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+    GLuint tarjetaAbuelitos = SOIL_load_OGL_texture("Models/tarjetas/abuelitos.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
+    GLuint tarjetaCementerio = SOIL_load_OGL_texture("Models/tarjetas/cementerio.png", SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y);
     // Set texture units
     lightingShader.Use();
     glUniform1i(glGetUniformLocation(lightingShader.Program, "Material.difuse"), 0);
@@ -425,6 +437,8 @@ int main()
         glfwPollEvents();
         DoMovement();
         Animation();
+        ActualizarTourCamara();
+		LimitarPosicionCamara();
 
         // Clear
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -774,7 +788,7 @@ int main()
 
 
         // ===================== VELAS =====================
-// Planta 1
+        // Planta 1
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-2.4f, 0.0f, 1.5f));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1043,7 +1057,7 @@ int main()
         cuerpo.Draw(lightingShader);
         cabeza.Draw(lightingShader);
 
-        // 2. Configurar y Dibujar la Máscara (Con escala independiente)
+        //  Configurar y Dibujar la Máscara (Con escala independiente)
         glm::mat4 matrixModelMascara = matrixModelCuerpoA;
         // Cambia los valores de escala (1.5f) según el tamaño que necesites
         matrixModelMascara = glm::scale(matrixModelMascara, glm::vec3(0.1f, 0.1f, 0.1f));
@@ -1204,7 +1218,7 @@ int main()
 
 
         // ===================== SEGUNDA MUJER (Lado Derecho) =====================
-              // ===================== SEGUNDA MUJER (Lado Derecho) =====================
+
         // Usamos variables con un nombre distinto para no chocar con las de la mujer original
         glm::mat4 matrixModelMujer2 = glm::mat4(1.0f);
         // La posicionamos a la derecha (X = 1.3f) y giramos 180 grados
@@ -1444,8 +1458,58 @@ int main()
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
         glDisable(GL_BLEND);
+        // ===================== TARJETA DESCRIPTIVA (CUADRO DE INFORMACIÓN) =====================
+        if (esperandoAccion) {
+            glDisable(GL_DEPTH_TEST); // Para que la tarjeta se dibuje siempre al frente en pantalla
+            glDisable(GL_CULL_FACE);  // 
+            papelShader.Use();
+
+            // Configuramos una matriz ortográfica o proyectada fija frente a la cámara
+            glm::mat4 projectionUI = glm::perspective(camera.GetZoom(), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 100.0f);
+            glm::mat4 viewUI = camera.GetViewMatrix();
+
+            glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewUI));
+            glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projectionUI));
 
 
+            // SELECCIONAR LA TEXTURA SEGÚN LA ESTACIÓN ACTUAL DEL TOUR
+     
+            GLuint texturaActualTarjeta = papelTexture1; // Valor por defecto
+
+            switch (estacionActual) {
+            case 0: texturaActualTarjeta = tarjetaArco; break;         // Estación 0: Arco y Cempasúchil
+            case 1: texturaActualTarjeta = tarjetaPersonajes; break;   // Estación 1: Hombre y Mujer (Danza)
+            case 2: texturaActualTarjeta = tarjetaOfrenda; break;      // Estación 2: Ofrenda
+            case 3: texturaActualTarjeta = tarjetaAbuelitos; break;    // Estación 3: Abuelitos (Danza de los Viejitos)
+            case 4: texturaActualTarjeta = tarjetaCementerio; break;   // Estación 4: Cementerio
+            }
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texturaActualTarjeta);
+            glUniform1i(glGetUniformLocation(papelShader.Program, "papelTex"), 0);
+            glUniform1f(glGetUniformLocation(papelShader.Program, "opacidad"), 0.98f); // Casi totalmente opaca para leer perfecto
+
+            // Posicionamos el cuadro de información justo enfrente de la cámara
+            glm::mat4 modelTarjeta = glm::mat4(1.0f);
+            glm::vec3 posTarjeta = camera.GetPosition() + (camera.GetFront() * 1.5f);
+            modelTarjeta = glm::translate(modelTarjeta, posTarjeta);
+            if (estacionActual == 2) {
+                modelTarjeta = glm::rotate(modelTarjeta, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            }
+
+
+            // Ajustamos el tamaño de la tarjeta en pantalla (ancho, alto, grosor)
+            modelTarjeta = glm::scale(modelTarjeta, glm::vec3(1.3f, 0.8f, 1.0f));
+
+            glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTarjeta));
+
+            glBindVertexArray(quadVAO);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+
+            glEnable(GL_CULL_FACE);
+            glEnable(GL_DEPTH_TEST); // Restauramos el depth test
+        }
         // Swap buffers
         glfwSwapBuffers(window);
     }
@@ -1462,6 +1526,10 @@ int main()
 // Movimiento de cámara y luces
 void DoMovement()
 {
+    // SI EL TOUR ESTÁ ACTIVO Y NO ESTÁ PAUSADO, BLOQUEAMOS EL TECLADO POR COMPLETO
+    if (tourActivo && !tourPausado) {
+        return;
+    }
     if (keys[GLFW_KEY_W] || keys[GLFW_KEY_UP])
         camera.ProcessKeyboard(FORWARD, deltaTime);
     if (keys[GLFW_KEY_S] || keys[GLFW_KEY_DOWN])
@@ -1497,6 +1565,31 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
     // M: enciende / apaga el baile de la mujer
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
         animandoBaile = !animandoBaile;
+    }
+    //Tecla para posicionar e iniciar tour S
+    if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+        tourActivo = !tourActivo;
+        tourPausado = false;
+        esperandoAccion = false;
+        if (tourActivo && estacionActual > 4) {
+            estacionActual = 0; // Reinicia si ya había acabado
+            progresoEstacion = 0.0f;
+        }
+        std::cout << (tourActivo ? ">>> TOUR VIRTUAL INICIADO <<<" : ">>> TOUR VIRTUAL DETENIDO <<<") << std::endl;
+    }
+    // F: Pausar / Continuar el Tour de la Cámara (o avanzar si está esperando en una tarjeta)
+    if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+        if (esperandoAccion) {
+            // Si está detenido mostrando una tarjeta, al presionar X continúa a la siguiente estación
+            esperandoAccion = false;
+            estacionActual++;
+            progresoEstacion = 0.0f;
+        }
+        else {
+            // Si está en movimiento, pausa o reanuda
+            tourPausado = !tourPausado;
+            std::cout << (tourPausado ? "Tour PAUSADO" : "Tour REANUDADO") << std::endl;
+        }
     }
 
     // Z / X: ajusta la altura del pivote de la cintura (calibracion)
@@ -1568,4 +1661,69 @@ void Animation() {
         break;
     }
 
+}
+
+void ActualizarTourCamara() {
+    if (!tourActivo || tourPausado || esperandoAccion) return;
+
+    // Posiciones donde se detendrá la cámara en cada estación
+    glm::vec3 posiciones[] = {
+        glm::vec3(0.0f, 1.8f, 1.8f),    // Estación 0: INICIO A MITAD DEL ARCO
+        glm::vec3(0.0f, 1.6f, 1.0f),    // Estación 1: Modelos de Hombre y Mujer
+        glm::vec3(1.5f, 1.5f, -4.0f),   // Estación 2: Altar / Ofrenda (Posicionada para ver hacia -X)
+        glm::vec3(2.2f, 1.5f, -8.0f),   // Estación 3: Modelos Abuelitos
+        glm::vec3(0.0f, 2.0f, -12.0f)   // Estación 4: Cementerio
+    };
+
+    // Puntos específicos a los que debe mirar la cámara en cada estación
+    glm::vec3 objetivos[] = {
+        glm::vec3(0.0f, 1.0f, -2.0f),   // Mirando hacia adelante por el túnel
+        glm::vec3(0.0f, 1.0f, 0.0f),    // Mirando a los modelos
+        glm::vec3(-2.0f, 1.0f, -4.0f),  // Estación 2: El Altar (ubicado en -2.0f, -4.0f) -> Queda enfrente mirando a -X
+        glm::vec3(2.0f, 1.0f, -9.2f),   // Mirando a los abuelitos
+        glm::vec3(0.0f, 1.0f, -15.0f)   // Mirando al cementerio
+    };
+    if (progresoEstacion >= 1.0f) {
+        progresoEstacion = 1.0f;
+        esperandoAccion = true;
+
+    }
+    int maxEstaciones = 4;
+    if (estacionActual > maxEstaciones) {
+        tourActivo = false; // Fin del recorrido
+        return;
+    }
+
+    // Velocidad de movimiento de la cámara entre estaciones
+    progresoEstacion += deltaTime * 0.4f;
+
+    // Interpolar posición actual hacia la posición de la estación
+    glm::vec3 posActual = camera.GetPosition();
+    glm::vec3 posDestino = posiciones[estacionActual];
+    glm::vec3 nuevaPos = glm::mix(posActual, posDestino, deltaTime * 2.0f);
+
+    camera.SetPosition(nuevaPos);
+
+    // Hacer que la cámara rote suavemente hacia el objetivo de la estación actual
+    glm::vec3 objActual = objetivos[estacionActual];
+    camera.PointTo(objActual);
+}
+// Función para limitar los movimientos de la cámara dentro de los límites del escenario
+void LimitarPosicionCamara() {
+    glm::vec3 pos = camera.GetPosition();
+
+    // Límites en el Eje X 
+    if (pos.x < -3.0f) pos.x = -3.0f;
+    if (pos.x > 3.0f) pos.x = 3.0f;
+
+    // Límites en el Eje Y 
+    if (pos.y < 0.6f) pos.y = 0.6f;  
+    if (pos.y > 4.0f) pos.y = 4.0f;
+
+    // Límites en el Eje Z (Largo del escenario: desde el inicio del arco hasta el fondo del cementerio)
+    if (pos.z < -17.5f) pos.z = -17.5f; // Límite en el fondo (Cementerio)
+    if (pos.z > 3.5f) pos.z = 3.5f;  // Límite al frente (Entrada del arco)
+
+    // Aplicamos la posición limitada de regreso a la cámara
+    camera.SetPosition(pos);
 }

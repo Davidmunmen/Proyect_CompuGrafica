@@ -125,12 +125,20 @@ public:
 	}
 	void SetPosition(glm::vec3 pos) //Seguir la camara con la luz 
 	{ 
-		this->position; 
+		this->position = pos;
 	}
 
 	glm::vec3 GetFront()
 	{
 		return this->front;
+	}
+	// Hace que la cámara apunte directamente hacia un objetivo (target)
+	void PointTo(glm::vec3 target)
+	{
+		glm::vec3 dir = glm::normalize(target - this->position);
+		this->pitch = glm::degrees(asin(dir.y));
+		this->yaw = glm::degrees(atan2(dir.z, dir.x));
+		this->updateCameraVectors();
 	}
 
 private:
