@@ -120,10 +120,10 @@ const float VEL_BAILE = 6.0f;
 const float VEL_FALDA = 4.5f;
 const float VEL_PIERNA = 6.0f;
 
-const glm::vec3 pivoteHombroDer(-0.5f, 4.0f, 0.0f);
-const glm::vec3 pivoteHombroIzq(0.5f, 4.0f, 0.0f);
-const glm::vec3 pivoteCaderaDer(-0.3f, 2.2f, 0.0f);
-const glm::vec3 pivoteCaderaIzq(0.3f, 2.2f, 0.0f);
+const glm::vec3 pivoteHombroDer(-0.0f, 0.0f, 0.0f);
+const glm::vec3 pivoteHombroIzq(0.0f, 0.0f, 0.0f);
+const glm::vec3 pivoteCaderaDer(-0.0f, 0.0f, 0.0f);
+const glm::vec3 pivoteCaderaIzq(0.0f, 0.0f, 0.0f);
 glm::vec3 pivoteCintura(0.0f, 2.4f, 0.0f);
 // ===================== VARIABLES PARA EL TOUR DE CÁMARA =====================
 bool tourActivo = false;      //iniciamos en false para que el usuario decida si quiere iniciar el tour
@@ -132,10 +132,21 @@ int estacionActual = 0;       // 0: Camino/Arco, 1: Hombre y Mujer, 2: Ofrenda, 
 float progresoEstacion = 0.0f;
 bool esperandoAccion = false; // Si llegó a un punto de tarjeta y espera que el usuario presione X para continuar
 
+//Variables para la animacion de la camapana
+bool animandoCampana = false;
+int estadoCampana = 0;
+float anguloCampana = 0.0f;
+float maxAnguloCampana = 25.0f;
+float velCampanaActual = 90.0f;
+const float VEL_CAMPANA_BASE = 90.0f;
 
-// Si el muslo (musDer) se mueve con la pierna contraria, cambia este valor a false.
+// Variables para el baile de los abuelitos
+bool animandoAbuelitos = false;
+int estadoBaileAbuelitos = 0;
 
-const bool MUSDER_NATIVO_EN_X_NEGATIVO = true;
+float rotacionBrazosAbuelitos = 0.0f;
+float rotacionPiernasAbuelitos = 0.0f;
+float inclinacionAbuelitos = 0.0f;
 
 // Rota alrededor de un pivote (con opción de eje)
 glm::mat4 RotarEnPivote(const glm::mat4& base, const glm::vec3& pivote, float grados, glm::vec3 eje = glm::vec3(1.0f, 0.0f, 0.0f))
@@ -704,10 +715,16 @@ int main()
         arcoP.Draw(lightingShader);
 
         //--Campana--
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 1.51f, -11.0f));
-        model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glm::vec3 pivoteCampana(0.0f, 1.51f, -11.0f); // Punto de suspensión superior
+
+        glm::mat4 matrixCampana = glm::mat4(1.0f);
+        matrixCampana = glm::translate(matrixCampana, glm::vec3(0.0f, 1.51f, -11.0f));
+
+        // Aplica la rotación pendular en Z alrededor del pivote superior
+        matrixCampana = RotarEnPivote(matrixCampana, pivoteCampana, anguloCampana, glm::vec3(0.0f, 0.0f, 1.0f));
+        matrixCampana = glm::scale(matrixCampana, glm::vec3(0.3f, 0.3f, 0.3f));
+
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matrixCampana));
         campana.Draw(lightingShader);
 
         //--Velass--
@@ -1046,38 +1063,52 @@ int main()
         pieiz.Draw(lightingShader);
         // ===================== PERSONAJE ABUELITO =====================
 
-        //Numero 1------------
-        glm::mat4 matrixModelCuerpoA = glm::mat4(1.0f);
-        // Traslación general: mueve TODO el modelo (ej. -3.0f hacia la izquierda en X)
-        matrixModelCuerpoA = glm::translate(matrixModelCuerpoA, glm::vec3(2.0f, 0.75f, -9.2f));
 
-        // 1. Dibujar Cuerpo y Cabeza (Tamaño y posición normal)
+        // ================================================================
+        // ABUELITO 1
+        // ================================================================
+
+        glm::mat4 matrixModelCuerpoA = glm::mat4(1.0f);
+        matrixModelCuerpoA = glm::translate(
+            matrixModelCuerpoA, glm::vec3(2.0f, 0.75f, -9.2f));
+
+        // Inclinación general del modelo
+        matrixModelCuerpoA = RotarEnPivote(
+            matrixModelCuerpoA,
+            pivoteCintura,
+            inclinacionAbuelitos,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+
+        // Cuerpo y cabeza
         model = matrixModelCuerpoA;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         cuerpo.Draw(lightingShader);
         cabeza.Draw(lightingShader);
 
-        //  Configurar y Dibujar la Máscara (Con escala independiente)
+        // Máscara
         glm::mat4 matrixModelMascara = matrixModelCuerpoA;
-        // Cambia los valores de escala (1.5f) según el tamaño que necesites
         matrixModelMascara = glm::scale(matrixModelMascara, glm::vec3(0.1f, 0.1f, 0.1f));
-        // matrixModelMascara = glm::translate(matrixModelMascara, glm::vec3(0.0f, 0.0f, 0.05f)); // Descomenta si necesitas ajustarla hacia adelante
         matrixModelMascara = glm::translate(matrixModelMascara, glm::vec3(0.2f, 3.0f, 0.8f));
-
         matrixModelMascara = glm::rotate(matrixModelMascara, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
         model = matrixModelMascara;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         mascaraA.Draw(lightingShader);
 
-        // 3. Dibujar Brazo Derecho
-        glm::mat4 matrixModelBrazoDerA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroDer, rotacionBrazos);
+        // Brazo derecho
+        glm::mat4 matrixModelBrazoDerA =
+            RotarEnPivote(matrixModelCuerpoA, pivoteHombroDer, rotacionBrazosAbuelitos);
+
         model = matrixModelBrazoDerA;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
         manoDer.Draw(lightingShader);
 
-        // 4. Dibujar Brazo Izquierdo
-        glm::mat4 matrixModelBrazoIzqA = RotarEnPivote(matrixModelCuerpoA, pivoteHombroIzq, -rotacionBrazos);
+        // Brazo izquierdo
+        glm::mat4 matrixModelBrazoIzqA =
+            RotarEnPivote(matrixModelCuerpoA, pivoteHombroIzq, -rotacionBrazosAbuelitos);
+
         model = glm::translate(matrixModelBrazoIzqA, glm::vec3(0.06f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -1087,8 +1118,10 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
 
-        // 5. Dibujar Pierna Derecha
-        glm::mat4 matrixModelPiernaDerA = RotarEnPivote(matrixModelCuerpoA, pivoteCaderaDer, rotacionPiernas);
+        // Pierna derecha
+        glm::mat4 matrixModelPiernaDerA =
+            RotarEnPivote(matrixModelCuerpoA, pivoteCaderaDer, rotacionPiernasAbuelitos);
+
         model = matrixModelPiernaDerA;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
@@ -1097,8 +1130,10 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
 
-        // 6. Dibujar Pierna Izquierda
-        glm::mat4 matrixModelPiernaIzqA = RotarEnPivote(matrixModelCuerpoA, pivoteCaderaIzq, -rotacionPiernas);
+        // Pierna izquierda
+        glm::mat4 matrixModelPiernaIzqA =
+            RotarEnPivote(matrixModelCuerpoA, pivoteCaderaIzq, -rotacionPiernasAbuelitos);
+
         model = glm::scale(matrixModelPiernaIzqA, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
@@ -1107,38 +1142,51 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
 
-        //numero 2------------------
-        glm::mat4 matrixModelCuerpoA2 = glm::mat4(1.0f);
-        // Traslación general: mueve TODO el modelo (ej. -3.0f hacia la izquierda en X)
-        matrixModelCuerpoA2 = glm::translate(matrixModelCuerpoA2, glm::vec3(2.5f, 0.75f, -9.2f));
 
-        // 1. Dibujar Cuerpo y Cabeza (Tamaño y posición normal)
+        // ================================================================
+        // ABUELITO 2
+        // ================================================================
+
+        glm::mat4 matrixModelCuerpoA2 = glm::mat4(1.0f);
+        matrixModelCuerpoA2 = glm::translate(
+            matrixModelCuerpoA2, glm::vec3(2.5f, 0.75f, -9.2f));
+
+        matrixModelCuerpoA2 = RotarEnPivote(
+            matrixModelCuerpoA2,
+            pivoteCintura,
+            inclinacionAbuelitos,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+
+        // Cuerpo y cabeza
         model = matrixModelCuerpoA2;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         cuerpo.Draw(lightingShader);
         cabeza.Draw(lightingShader);
 
-        // 2. Configurar y Dibujar la Máscara (Con escala independiente)
+        // Máscara
         glm::mat4 matrixModelMascara2 = matrixModelCuerpoA2;
-        // Cambia los valores de escala (1.5f) según el tamaño que necesites
         matrixModelMascara2 = glm::scale(matrixModelMascara2, glm::vec3(0.1f, 0.1f, 0.1f));
-        // matrixModelMascara = glm::translate(matrixModelMascara, glm::vec3(0.0f, 0.0f, 0.05f)); // Descomenta si necesitas ajustarla hacia adelante
         matrixModelMascara2 = glm::translate(matrixModelMascara2, glm::vec3(0.2f, 3.0f, 0.8f));
-
         matrixModelMascara2 = glm::rotate(matrixModelMascara2, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
         model = matrixModelMascara2;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         mascaraA.Draw(lightingShader);
 
-        // 3. Dibujar Brazo Derecho
-        glm::mat4 matrixModelBrazoDerA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteHombroDer, rotacionBrazos);
+        // Brazo derecho
+        glm::mat4 matrixModelBrazoDerA2 =
+            RotarEnPivote(matrixModelCuerpoA2, pivoteHombroDer, rotacionBrazosAbuelitos);
+
         model = matrixModelBrazoDerA2;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
         manoDer.Draw(lightingShader);
 
-        // 4. Dibujar Brazo Izquierdo
-        glm::mat4 matrixModelBrazoIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteHombroIzq, -rotacionBrazos);
+        // Brazo izquierdo
+        glm::mat4 matrixModelBrazoIzqA2 =
+            RotarEnPivote(matrixModelCuerpoA2, pivoteHombroIzq, -rotacionBrazosAbuelitos);
+
         model = glm::translate(matrixModelBrazoIzqA2, glm::vec3(0.06f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -1148,8 +1196,10 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
 
-        // 5. Dibujar Pierna Derecha
-        glm::mat4 matrixModelPiernaDerA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaDer, rotacionPiernas);
+        // Pierna derecha
+        glm::mat4 matrixModelPiernaDerA2 =
+            RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaDer, rotacionPiernasAbuelitos);
+
         model = matrixModelPiernaDerA2;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
@@ -1158,8 +1208,10 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
 
-        // 6. Dibujar Pierna Izquierda
-        glm::mat4 matrixModelPiernaIzqA2 = RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaIzq, -rotacionPiernas);
+        // Pierna izquierda
+        glm::mat4 matrixModelPiernaIzqA2 =
+            RotarEnPivote(matrixModelCuerpoA2, pivoteCaderaIzq, -rotacionPiernasAbuelitos);
+
         model = glm::scale(matrixModelPiernaIzqA2, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
@@ -1167,54 +1219,163 @@ int main()
         model = matrixModelPiernaIzqA2;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
-       
 
-        // ===================== SEGUNDO HOMBRE (Lado Derecho) =====================
-// Creamos una matriz base para el hombre del lado derecho
-        glm::mat4 matrixModel2H = glm::mat4(1.0f);
-        matrixModel2H = glm::translate(matrixModel2H, glm::vec3(2.0f, 0.75f, 0.0f));
-        
 
-        // Dibujamos al hombre usando la nueva matriz base
-        model = matrixModel2H;
+        // ================================================================
+        // ABUELITO 3
+        // ================================================================
+
+        glm::mat4 matrixModelCuerpoA3 = glm::mat4(1.0f);
+        matrixModelCuerpoA3 = glm::translate(
+            matrixModelCuerpoA3, glm::vec3(-2.5f, 0.75f, -9.2f));
+
+        matrixModelCuerpoA3 = RotarEnPivote(
+            matrixModelCuerpoA3,
+            pivoteCintura,
+            inclinacionAbuelitos,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+
+        // Cuerpo y cabeza
+        model = matrixModelCuerpoA3;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         cuerpo.Draw(lightingShader);
         cabeza.Draw(lightingShader);
-        mascara.Draw(lightingShader);
 
-        glm::mat4 brazoDerH = RotarEnPivote(matrixModel2H, pivoteHombroDer, rotacionBrazos);
-        model = brazoDerH;
+        // Máscara
+        glm::mat4 matrixModelMascara3 = matrixModelCuerpoA3;
+        matrixModelMascara3 = glm::scale(matrixModelMascara3, glm::vec3(0.1f, 0.1f, 0.1f));
+        matrixModelMascara3 = glm::translate(matrixModelMascara3, glm::vec3(0.2f, 3.0f, 0.8f));
+        matrixModelMascara3 = glm::rotate(matrixModelMascara3, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        model = matrixModelMascara3;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        mascaraA.Draw(lightingShader);
+
+        // Brazo derecho
+        glm::mat4 matrixModelBrazoDerA3 =
+            RotarEnPivote(matrixModelCuerpoA3, pivoteHombroDer, rotacionBrazosAbuelitos);
+
+        model = matrixModelBrazoDerA3;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
         manoDer.Draw(lightingShader);
 
-        glm::mat4 brazoIzqH = RotarEnPivote(matrixModel2H, pivoteHombroIzq, -rotacionBrazos);
-        model = glm::translate(brazoIzqH, glm::vec3(0.06f, 0.0f, 0.0f));
+        // Brazo izquierdo
+        glm::mat4 matrixModelBrazoIzqA3 =
+            RotarEnPivote(matrixModelCuerpoA3, pivoteHombroIzq, -rotacionBrazosAbuelitos);
+
+        model = glm::translate(matrixModelBrazoIzqA3, glm::vec3(0.06f, 0.0f, 0.0f));
         model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         biceps.Draw(lightingShader);
 
-        model = brazoIzqH;
+        model = matrixModelBrazoIzqA3;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         manoIzq.Draw(lightingShader);
 
-        glm::mat4 piernaDerH = RotarEnPivote(matrixModel2H, pivoteCaderaDer, rotacionPiernas);
-        model = piernaDerH;
+        // Pierna derecha
+        glm::mat4 matrixModelPiernaDerA3 =
+            RotarEnPivote(matrixModelCuerpoA3, pivoteCaderaDer, rotacionPiernasAbuelitos);
+
+        model = matrixModelPiernaDerA3;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
 
-        model = glm::scale(piernaDerH, glm::vec3(-1.0f, 1.0f, 1.0f));
+        model = glm::scale(matrixModelPiernaDerA3, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
 
-        glm::mat4 piernaIzqH = RotarEnPivote(matrixModel2H, pivoteCaderaIzq, -rotacionPiernas);
-        model = glm::scale(piernaIzqH, glm::vec3(-1.0f, 1.0f, 1.0f));
+        // Pierna izquierda
+        glm::mat4 matrixModelPiernaIzqA3 =
+            RotarEnPivote(matrixModelCuerpoA3, pivoteCaderaIzq, -rotacionPiernasAbuelitos);
+
+        model = glm::scale(matrixModelPiernaIzqA3, glm::vec3(-1.0f, 1.0f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         musDer.Draw(lightingShader);
 
-        model = piernaIzqH;
+        model = matrixModelPiernaIzqA3;
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
+
+
+        // ================================================================
+        // ABUELITO 4
+        // ================================================================
+
+        glm::mat4 matrixModelCuerpoA4 = glm::mat4(1.0f);
+        matrixModelCuerpoA4 = glm::translate(
+            matrixModelCuerpoA4, glm::vec3(-2.0f, 0.75f, -9.2f));
+
+        matrixModelCuerpoA4 = RotarEnPivote(
+            matrixModelCuerpoA4,
+            pivoteCintura,
+            inclinacionAbuelitos,
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+
+        // Cuerpo y cabeza
+        model = matrixModelCuerpoA4;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+        cabeza.Draw(lightingShader);
+
+        // Máscara
+        glm::mat4 matrixModelMascara4 = matrixModelCuerpoA4;
+        matrixModelMascara4 = glm::scale(matrixModelMascara4, glm::vec3(0.1f, 0.1f, 0.1f));
+        matrixModelMascara4 = glm::translate(matrixModelMascara4, glm::vec3(0.2f, 3.0f, 0.8f));
+        matrixModelMascara4 = glm::rotate(matrixModelMascara4, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        model = matrixModelMascara4;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        mascaraA.Draw(lightingShader);
+
+        // Brazo derecho
+        glm::mat4 matrixModelBrazoDerA4 =
+            RotarEnPivote(matrixModelCuerpoA4, pivoteHombroDer, rotacionBrazosAbuelitos);
+
+        model = matrixModelBrazoDerA4;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+        manoDer.Draw(lightingShader);
+
+        // Brazo izquierdo
+        glm::mat4 matrixModelBrazoIzqA4 =
+            RotarEnPivote(matrixModelCuerpoA4, pivoteHombroIzq, -rotacionBrazosAbuelitos);
+
+        model = glm::translate(matrixModelBrazoIzqA4, glm::vec3(0.06f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
+        model = matrixModelBrazoIzqA4;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        // Pierna derecha
+        glm::mat4 matrixModelPiernaDerA4 =
+            RotarEnPivote(matrixModelCuerpoA4, pivoteCaderaDer, rotacionPiernasAbuelitos);
+
+        model = matrixModelPiernaDerA4;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = glm::scale(matrixModelPiernaDerA4, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        // Pierna izquierda
+        glm::mat4 matrixModelPiernaIzqA4 =
+            RotarEnPivote(matrixModelCuerpoA4, pivoteCaderaIzq, -rotacionPiernasAbuelitos);
+
+        model = glm::scale(matrixModelPiernaIzqA4, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = matrixModelPiernaIzqA4;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
 
 
         // ===================== SEGUNDA MUJER (Lado Derecho) =====================
@@ -1566,6 +1727,31 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
     if (key == GLFW_KEY_M && action == GLFW_PRESS) {
         animandoBaile = !animandoBaile;
     }
+    //campana
+    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+        animandoCampana = !animandoCampana;
+        if (animandoCampana) {
+            maxAnguloCampana = 25.0f;       // Fuerza inicial
+            velCampanaActual = VEL_CAMPANA_BASE;
+            estadoCampana = 1;              // Inicia el balanceo FSM
+        }
+    }
+    // B: Inicia / detiene el baile de los abuelitos
+    if (key == GLFW_KEY_B && action == GLFW_PRESS) {
+
+        animandoAbuelitos = !animandoAbuelitos;
+
+        if (animandoAbuelitos) {
+            estadoBaileAbuelitos = 1;
+
+            std::cout << "BAILE DE LOS ABUELITOS ACTIVADO" << std::endl;
+        }
+        else {
+            estadoBaileAbuelitos = 0;
+
+            std::cout << "BAILE DE LOS ABUELITOS DESACTIVADO" << std::endl;
+        }
+    }
     //Tecla para posicionar e iniciar tour S
     if (key == GLFW_KEY_R && action == GLFW_PRESS) {
         tourActivo = !tourActivo;
@@ -1617,7 +1803,12 @@ void MouseCallback(GLFWwindow* window, double xPos, double yPos)
     camera.ProcessMouseMovement(xOffset, yOffset);
 }
 
+
 void Animation() {
+
+    // =========================================================================
+    // 1. LÓGICA DEL BAILE DE LA MUJER
+    // =========================================================================
     if (!animandoBaile) {
         estadoBaile = 0;
     }
@@ -1625,35 +1816,35 @@ void Animation() {
     bool llegoAng = false, llegoFalda = false, llegoPie = false;
 
     switch (estadoBaile) {
-    case 0: // REPOSO: regresa suavemente todo a cero
+    case 0:
         MoverHacia(anguloBaile, 0.0f, VEL_BAILE);
         MoverHacia(anguloFalda, 0.0f, VEL_FALDA);
         MoverHacia(rotacionPiernasMujer, 0.0f, VEL_PIERNA);
         if (animandoBaile) estadoBaile = 1;
         break;
 
-    case 1: // INCLINACIÓN HACIA UN LADO (+)
+    case 1:
         llegoAng = MoverHacia(anguloBaile, MAX_BAILE, VEL_BAILE);
         llegoFalda = MoverHacia(anguloFalda, MAX_FALDA, VEL_FALDA);
         llegoPie = MoverHacia(rotacionPiernasMujer, MAX_PIERNA, VEL_PIERNA);
         if (llegoAng && llegoFalda && llegoPie) estadoBaile = 2;
         break;
 
-    case 2: // REGRESA AL CENTRO
+    case 2:
         llegoAng = MoverHacia(anguloBaile, 0.0f, VEL_BAILE);
         llegoFalda = MoverHacia(anguloFalda, 0.0f, VEL_FALDA);
         llegoPie = MoverHacia(rotacionPiernasMujer, 0.0f, VEL_PIERNA);
         if (llegoAng && llegoFalda && llegoPie) estadoBaile = 3;
         break;
 
-    case 3: // INCLINACIÓN HACIA EL OTRO LADO (-)
+    case 3:
         llegoAng = MoverHacia(anguloBaile, -MAX_BAILE, VEL_BAILE);
         llegoFalda = MoverHacia(anguloFalda, -MAX_FALDA, VEL_FALDA);
         llegoPie = MoverHacia(rotacionPiernasMujer, -MAX_PIERNA, VEL_PIERNA);
         if (llegoAng && llegoFalda && llegoPie) estadoBaile = 4;
         break;
 
-    case 4: // REGRESA AL CENTRO
+    case 4:
         llegoAng = MoverHacia(anguloBaile, 0.0f, VEL_BAILE);
         llegoFalda = MoverHacia(anguloFalda, 0.0f, VEL_FALDA);
         llegoPie = MoverHacia(rotacionPiernasMujer, 0.0f, VEL_PIERNA);
@@ -1661,7 +1852,124 @@ void Animation() {
         break;
     }
 
+    // =========================================================================
+    // 2. LÓGICA DEL BAILE DE LOS ABUELITOS
+    // =========================================================================
+
+    bool llegoInclinacionAbuelitos = false;
+    bool llegoBrazosAbuelitos = false;
+    bool llegoPiernasAbuelitos = false;
+
+    switch (estadoBaileAbuelitos)
+    {
+    case 0: // REPOSO
+        MoverHacia(inclinacionAbuelitos, 0.0f, 15.0f);
+        MoverHacia(rotacionBrazosAbuelitos, 0.0f, 30.0f);
+        MoverHacia(rotacionPiernasAbuelitos, 0.0f, 20.0f);
+        break;
+
+    case 1: // INCLINACIÓN HACIA LA DERECHA
+        llegoInclinacionAbuelitos =
+            MoverHacia(inclinacionAbuelitos, 3.0f, 15.0f);
+
+        llegoBrazosAbuelitos =
+            MoverHacia(rotacionBrazosAbuelitos, 10.0f, 30.0f);
+
+        llegoPiernasAbuelitos =
+            MoverHacia(rotacionPiernasAbuelitos, 4.0f, 20.0f);
+
+        if (llegoInclinacionAbuelitos &&
+            llegoBrazosAbuelitos &&
+            llegoPiernasAbuelitos)
+        {
+            estadoBaileAbuelitos = 2;
+        }
+        break;
+
+    case 2: // INCLINACIÓN HACIA LA IZQUIERDA
+        llegoInclinacionAbuelitos =
+            MoverHacia(inclinacionAbuelitos, -3.0f, 15.0f);
+
+        llegoBrazosAbuelitos =
+            MoverHacia(rotacionBrazosAbuelitos, -10.0f, 30.0f);
+
+        llegoPiernasAbuelitos =
+            MoverHacia(rotacionPiernasAbuelitos, -4.0f, 20.0f);
+
+        if (llegoInclinacionAbuelitos &&
+            llegoBrazosAbuelitos &&
+            llegoPiernasAbuelitos)
+        {
+            estadoBaileAbuelitos = 3;
+        }
+        break;
+
+    case 3: // REGRESO AL CENTRO
+        llegoInclinacionAbuelitos =
+            MoverHacia(inclinacionAbuelitos, 0.0f, 15.0f);
+
+        llegoBrazosAbuelitos =
+            MoverHacia(rotacionBrazosAbuelitos, 0.0f, 30.0f);
+
+        llegoPiernasAbuelitos =
+            MoverHacia(rotacionPiernasAbuelitos, 0.0f, 20.0f);
+
+        if (llegoInclinacionAbuelitos &&
+            llegoBrazosAbuelitos &&
+            llegoPiernasAbuelitos)
+        {
+            if (animandoAbuelitos)
+            {
+                estadoBaileAbuelitos = 1;
+            }
+            else
+            {
+                estadoBaileAbuelitos = 0;
+            }
+        }
+        break;
+    }
+
+    // =========================================================================
+    // 3. LÓGICA DE LA CAMPANA
+    // =========================================================================
+
+    if (!animandoCampana) {
+        estadoCampana = 0;
+    }
+
+    bool llegoCampana = false;
+
+    switch (estadoCampana) {
+    case 0:
+        MoverHacia(anguloCampana, 0.0f, VEL_CAMPANA_BASE);
+        break;
+
+    case 1:
+        llegoCampana = MoverHacia(anguloCampana, maxAnguloCampana, velCampanaActual);
+        if (llegoCampana) {
+            estadoCampana = 2;
+        }
+        break;
+
+    case 2:
+        llegoCampana = MoverHacia(anguloCampana, -maxAnguloCampana, velCampanaActual);
+        if (llegoCampana) {
+            maxAnguloCampana *= 0.65f;
+            velCampanaActual *= 0.85f;
+
+            if (maxAnguloCampana < 0.3f) {
+                animandoCampana = false;
+                estadoCampana = 0;
+            }
+            else {
+                estadoCampana = 1;
+            }
+        }
+        break;
+    }
 }
+
 
 void ActualizarTourCamara() {
     if (!tourActivo || tourPausado || esperandoAccion) return;
