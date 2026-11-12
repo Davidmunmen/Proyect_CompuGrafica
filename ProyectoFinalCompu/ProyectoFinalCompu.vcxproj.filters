@@ -59,6 +59,12 @@
     <None Include="Shader\papel.vs">
       <Filter>Archivos de origen\Shader</Filter>
     </None>
+    <None Include="Shader\Temp.frag">
+      <Filter>Archivos de origen\Shader</Filter>
+    </None>
+    <None Include="Shader\Temp.vs">
+      <Filter>Archivos de origen\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Proyecto.cpp">
