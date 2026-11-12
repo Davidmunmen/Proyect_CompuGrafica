@@ -34,6 +34,8 @@
     <None Include="Shader\papel.vs" />
     <None Include="Shader\SkyBox.frag" />
     <None Include="Shader\SkyBox.vs" />
+    <None Include="Shader\Temp.frag" />
+    <None Include="Shader\Temp.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Proyecto.cpp" />

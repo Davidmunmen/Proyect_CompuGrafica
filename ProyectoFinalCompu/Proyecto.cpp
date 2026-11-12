@@ -37,7 +37,7 @@ void ActualizarTourCamara();
 void LimitarPosicionCamara();
 
 // Window dimensions
-const GLuint WIDTH = 1000, HEIGHT = 800;
+const GLuint WIDTH = 1200, HEIGHT = 1000;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
 
 // Camera (un poco más atrás y alto para ver el arco)
@@ -57,6 +57,7 @@ glm::vec3 pointLightPositions[] = {
     glm::vec3(0.0f, 0.0f, 0.0f),
     glm::vec3(0.0f, 0.0f, 0.0f)
 };
+
 glm::vec3 todasLasVelas[] = {
     // Arco 1 (Frente)
     glm::vec3(0.7f, -0.09f, 2.3f),  // Vela Derecha
@@ -68,10 +69,22 @@ glm::vec3 todasLasVelas[] = {
     glm::vec3(0.7f, -0.09f, -6.0f), // Vela Derecha
     glm::vec3(-0.7f, -0.09f, -6.0f),// Vela Izquierda
     // Velas extra cerca de la ofrenda
-    glm::vec3(0.7f, -0.09f, -10.0f),
-    glm::vec3(-0.7f, -0.09f, -10.0f)
+        glm::vec3(0.7f, -0.09f, -10.0f),
+        glm::vec3(-0.7f, -0.09f, -10.0f),
+
+        //Tumba1
+        glm::vec3(0.9f, -0.09f, -1.2f),
+        glm::vec3(-0.9f, -0.09f, -12.0f),
+
+        //Tumba2
+       glm::vec3(0.9f, -0.09f, -1.2f),
+       glm::vec3(-0.9f, -0.09f, -14.0f),
+
+       //Tumba3
+       glm::vec3(0.9f, -0.09f, -1.2f),
+       glm::vec3(-0.9f, -0.09f, -16.0f),
 };
-const int NUM_VELAS_TOTAL = 8;
+const int NUM_VELAS_TOTAL = 16;
 const int MAX_LUCES = 4;
 
 glm::vec3 velaPositions[] = {
@@ -204,6 +217,7 @@ int main()
     Shader lampShader("Shader/lamp.vs", "Shader/lamp.frag");
     Shader skyboxshader("Shader/SkyBox.vs", "Shader/SkyBox.frag");//skybox
     Shader papelShader("Shader/papel.vs", "Shader/papel.frag"); //papel picado
+	Shader TemplateShader("Shader/Temp.vs", "Shader/Temp.frag"); //shader para las tarjetas informativas
 
 
     // Modelos:  piso y arco
@@ -374,6 +388,13 @@ int main()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
+        // Cargar la textura 1 del papel picado
+    GLuint papelTexture0= SOIL_load_OGL_texture(
+		"Models/tarjetas/abuelitos.png",
+        SOIL_LOAD_AUTO,
+        SOIL_CREATE_NEW_ID,
+        SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+    );
     // Cargar la textura 1 del papel picado
     GLuint papelTexture1 = SOIL_load_OGL_texture(
         "Models/papel.png",
@@ -639,10 +660,9 @@ int main()
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
-        // ===================== Plantas =====================
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, -0.1f, -10.5f));
+        model = glm::translate(model, glm::vec3(0.0f, -0.1f, -11.5f));
         model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.0f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         base.Draw(lightingShader);
@@ -805,70 +825,198 @@ int main()
 
 
         // ===================== VELAS =====================
-        // Planta 1
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.4f, 0.0f, 1.5f));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+// Planta 1
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.4f, 0.0f, 1.5f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 2
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.8f, 0.0f, 0.5f));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 2
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.8f, 0.0f, 0.5f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 3
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.4f, 0.0f, -1.0f));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 3
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.4f, 0.0f, -1.0f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 4
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-2.8f, 0.0f, -2.0f));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 4
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.8f, 0.0f, -2.0f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 5
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.4f, 0.0f, 1.5f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 5
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.4f, 0.0f, 1.5f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 6
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.8f, 0.0f, 0.5f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
-        model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 6
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.8f, 0.0f, 0.5f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.6f, 0.6f, 0.6f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 7
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.4f, 0.0f, -1.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
-        model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 7
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.4f, 0.0f, -1.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
-        // Planta 8
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.8f, 0.0f, -2.0f));
-        model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f)); 
-        model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        planta.Draw(lightingShader);
+    // Planta 8
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.8f, 0.0f, -2.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
+    // Planta 9
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(1.5f, -0.2f, -17.3f));
+    //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 10
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-1.5f, -0.2f, -17.3f));
+    //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 11
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.5f, -0.2f, -17.3f));
+    //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 12
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-0.5f, -0.2f, -17.3f));
+    //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 12
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.5f, -0.2f, -17.3f));
+    //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 12
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.5f, -0.2f, -17.3f));
+    //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 7
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.4f, 0.0f, -5.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 8
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.8f, 0.0f, -4.0f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 7
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(1.5f, 0.0f, -3.5f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 8
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(1.8f, 0.0f, -2.6f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 7
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(1.5f, 0.0f, -7.4f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 8
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.5f, 0.0f, -6.2f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 7
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(2.8f, 0.0f, -8.2f));
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta 8
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.8f, 0.0f, -6.0));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+
+    // Plantaa Atras Izquierda
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.8f, 0.0f, -8.2f));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.45f, 0.45f, 0.45f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
+
+    // Planta Atras Izquierda
+    model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(-2.2f, 0.0f, -7.3));
+    model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(0.55f, 0.55f, 0.55f));
+    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+    planta.Draw(lightingShader);
 
         // ===================== Velas y Fuego Animado =====================
         lightingShader.Use();
@@ -880,8 +1028,11 @@ int main()
             glm::vec3(-0.7f, -0.09f, -2.0f),
             glm::vec3(0.7f, -0.09f, -2.0f),
             glm::vec3(-0.7f, -0.09f, -6.0f),
-            glm::vec3(0.7f, -0.09f, -6.0f)
+            glm::vec3(0.7f, -0.09f, -6.0f),
+            glm::vec3(0.7f, -0.09f, -11.0f),
+            glm::vec3(-0.7f, -0.09f, -11.0f),
         };
+       
 
         // Posiciones relativas de las 5 velitas (X, Y, Z)
         glm::vec3 posicionesVelitas[] = {
@@ -892,8 +1043,8 @@ int main()
             glm::vec3(-0.07f, 0.01f, 0.32f)     // Velita 5: Frontal Derecha 
         };
 
-        // Bucle para las 6 bases de velas
-        for (int v = 0; v < 6; v++) {
+        // Bucle para las 8 bases de velas
+        for (int v = 0; v < 8; v++) {
             // Dibujar la base de la vela
             model = glm::mat4(1.0f);
             model = glm::translate(model, velasPos[v]);
@@ -901,17 +1052,18 @@ int main()
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
             velas.Draw(lightingShader);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        //model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -10.0f));
+        //model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //velas.Draw(lightingShader);
 
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -10.0f));
-        model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        velas.Draw(lightingShader);
+        //model = glm::mat4(1.0f);
+        //model = glm::translate(model, glm::vec3(0.7f, -0.09f, -10.0f));
+        //model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //velas.Draw(lightingShader);
+        
             // Bucle para las 5 velitas de cada base
             for (int i = 0; i < 5; i++) {
                 model = glm::mat4(1.0f);
@@ -1447,6 +1599,50 @@ int main()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         pieiz.Draw(lightingShader);
 
+        // ===================== PERSONAJE HOMBRE =====================
+        glm::mat4 matrixModelCuerpo2 = glm::mat4(1.0f);
+        matrixModelCuerpo2 = glm::translate(matrixModelCuerpo2, glm::vec3(2.0f, 0.8f, 0.0f));
+
+        model = matrixModelCuerpo2 ;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        cuerpo.Draw(lightingShader);
+        cabeza.Draw(lightingShader);
+        mascara.Draw(lightingShader);
+
+        glm::mat4 matrixModelBrazoDer2 = RotarEnPivote(matrixModelCuerpo2, pivoteHombroDer, rotacionBrazos);
+        model = matrixModelBrazoDer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+        manoDer.Draw(lightingShader);
+
+        glm::mat4 matrixModelBrazoIzq2 = RotarEnPivote(matrixModelCuerpo2, pivoteHombroIzq, -rotacionBrazos);
+        model = glm::translate(matrixModelBrazoIzq2, glm::vec3(0.06f, 0.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        biceps.Draw(lightingShader);
+
+        model = matrixModelBrazoIzq2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        manoIzq.Draw(lightingShader);
+
+        glm::mat4 matrixModelPiernaDer2 = RotarEnPivote(matrixModelCuerpo2, pivoteCaderaDer, rotacionPiernas);
+        model = matrixModelPiernaDer2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = glm::scale(matrixModelPiernaDer2, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
+        glm::mat4 matrixModelPiernaIzq2 = RotarEnPivote(matrixModelCuerpo2, pivoteCaderaIzq, -rotacionPiernas);
+        model = glm::scale(matrixModelPiernaIzq2, glm::vec3(-1.0f, 1.0f, 1.0f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        musDer.Draw(lightingShader);
+
+        model = matrixModelPiernaIzq2;
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        pieiz.Draw(lightingShader);
+
         // ===================== LÁMPARA =====================
         lightingShader.Use();        
        modelLoc = glGetUniformLocation(lampShader.Program, "model");
@@ -1470,13 +1666,13 @@ int main()
         copa.Draw(lightingShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.7f, -0.09f, -7.0f));
+        model = glm::translate(model, glm::vec3(-1.0f, -0.09f, -10.0f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         copa.Draw(lightingShader);
 
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(-0.7f, -0.09f, -7.0f));
+        model = glm::translate(model, glm::vec3(1.0f, -0.09f, -10.0f));
         model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
         copa.Draw(lightingShader);
@@ -1516,8 +1712,10 @@ int main()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);
+        glDisable(GL_CULL_FACE);
 
         papelShader.Use();
+		
 
         glm::mat4 viewPapel = camera.GetViewMatrix();
         glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewPapel));
@@ -1531,7 +1729,7 @@ int main()
 
         // Arreglo de texturas
         GLuint texturas[] = { papelTexture1, papelTexture2, papelTexture3 };
-        float posicionesZ[] = { 2.1f, -2.2f, -6.2f, -10.2f };
+        float posicionesZ[] = { 2.1f, -2.2f, -6.2f, -11.2f };
      
 
         for (int arco = 0; arco < 4; arco++) {
@@ -1576,8 +1774,8 @@ int main()
         glm::vec3 copasPosiciones[] = {
             glm::vec3(1.0f, 0.0f, 2.3f),   // Copa 1
             glm::vec3(-1.0f, 0.0f, 2.3f),  // Copa 2
-            glm::vec3(0.7f, 0.0f, -7.0f),  // Copa 3
-            glm::vec3(-0.7f, 0.0f, -7.0f)  // Copa 4
+            glm::vec3(1.0f, 0.0f, -10.0f),  // Copa 3
+            glm::vec3(-1.0f, 0.0f, -10.0f)  // Copa 4
         };
 
         // Bucle para dibujar el humo en cada una de las 4 copas
@@ -1618,24 +1816,26 @@ int main()
 
         glBindVertexArray(0);
         glDepthMask(GL_TRUE);
+        glEnable(GL_CULL_FACE);
         glDisable(GL_BLEND);
         // ===================== TARJETA DESCRIPTIVA (CUADRO DE INFORMACIÓN) =====================
         if (esperandoAccion) {
             glDisable(GL_DEPTH_TEST); // Para que la tarjeta se dibuje siempre al frente en pantalla
             glDisable(GL_CULL_FACE);  // 
-            papelShader.Use();
+			papelShader.Use();
+			TemplateShader.Use();
 
             // Configuramos una matriz ortográfica o proyectada fija frente a la cámara
             glm::mat4 projectionUI = glm::perspective(camera.GetZoom(), (GLfloat)SCREEN_WIDTH / (GLfloat)SCREEN_HEIGHT, 0.1f, 100.0f);
             glm::mat4 viewUI = camera.GetViewMatrix();
 
-            glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewUI));
-            glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projectionUI));
+            glUniformMatrix4fv(glGetUniformLocation(TemplateShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(viewUI));
+            glUniformMatrix4fv(glGetUniformLocation(TemplateShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projectionUI));
 
 
             // SELECCIONAR LA TEXTURA SEGÚN LA ESTACIÓN ACTUAL DEL TOUR
      
-            GLuint texturaActualTarjeta = papelTexture1; // Valor por defecto
+            GLuint texturaActualTarjeta = papelTexture0;// Valor por defecto
 
             switch (estacionActual) {
             case 0: texturaActualTarjeta = tarjetaArco; break;         // Estación 0: Arco y Cempasúchil
@@ -1647,8 +1847,8 @@ int main()
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texturaActualTarjeta);
-            glUniform1i(glGetUniformLocation(papelShader.Program, "papelTex"), 0);
-            glUniform1f(glGetUniformLocation(papelShader.Program, "opacidad"), 0.98f); // Casi totalmente opaca para leer perfecto
+            glUniform1i(glGetUniformLocation(TemplateShader.Program, "papelTex"), 0);
+            glUniform1f(glGetUniformLocation(TemplateShader.Program, "opacidad"), 0.98f); // Casi totalmente opaca para leer perfecto
 
             // Posicionamos el cuadro de información justo enfrente de la cámara
             glm::mat4 modelTarjeta = glm::mat4(1.0f);
@@ -1662,7 +1862,7 @@ int main()
             // Ajustamos el tamaño de la tarjeta en pantalla (ancho, alto, grosor)
             modelTarjeta = glm::scale(modelTarjeta, glm::vec3(1.3f, 0.8f, 1.0f));
 
-            glUniformMatrix4fv(glGetUniformLocation(papelShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTarjeta));
+            glUniformMatrix4fv(glGetUniformLocation(TemplateShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(modelTarjeta));
 
             glBindVertexArray(quadVAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
