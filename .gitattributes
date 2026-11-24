@@ -58,3 +58,14 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 *.obj filter=lfs diff=lfs merge=lfs -text
+Models/** -text
+Shader/** -text
+SkyBox/** -text
+*.obj -text
+*.mtl -text
+*.vs -text
+*.frag -text
+*.png binary
+*.jpg binary
+*.dll binary
+*.exe binary
